@@ -1,1025 +1,752 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ToolBox — All-in-One</title>
+<title>TOOLBOX</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07070d;
-  --sidebar:#0b0b14;
-  --surface:rgba(255,255,255,0.045);
-  --surface2:rgba(255,255,255,0.075);
-  --border:rgba(255,255,255,0.08);
-  --border2:rgba(255,255,255,0.14);
-  --text:#f0f0fa;
-  --muted:rgba(255,255,255,0.38);
-  --muted2:rgba(255,255,255,0.18);
+  --bg:#000000;
   --font:'Inter',sans-serif;
   --mono:'JetBrains Mono',monospace;
-  /* category accents */
-  --mc:#56c248;   /* minecraft green */
-  --dc:#5865f2;   /* discord blurple */
-  --media:#ff6b6b;
-  --text-col:#f59e0b;
-  --util:#06b6d4;
-  --web:#a855f7;
+  --text:#ffffff;
+  --muted:rgba(255,255,255,0.45);
+  --muted2:rgba(255,255,255,0.18);
+  --border:rgba(255,255,255,0.10);
+  --border-bright:rgba(255,255,255,0.18);
+
+  /* Liquid glass layers */
+  --glass-bg:rgba(255,255,255,0.06);
+  --glass-bg-hover:rgba(255,255,255,0.09);
+  --glass-blur:blur(28px) saturate(180%);
+  --glass-shine:linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 40%, transparent 60%);
+  --glass-shine-top:linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 50%);
+
+  --green:#30d158;
+  --blue:#0a84ff;
+  --purple:#bf5af2;
+  --yellow:#ffd60a;
+  --red:#ff453a;
+  --cyan:#32ade6;
 }
+
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased}
-
-/* ── BG ── */
-.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.bg::before{content:'';position:absolute;width:700px;height:700px;top:-200px;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(88,101,242,0.12) 0%,transparent 70%);animation:bp 10s ease-in-out infinite alternate}
-.bg::after{content:'';position:absolute;width:500px;height:500px;bottom:-100px;right:0;background:radial-gradient(ellipse,rgba(86,194,72,0.08) 0%,transparent 70%);animation:bp 14s ease-in-out infinite alternate-reverse}
-@keyframes bp{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) scale(1.1)}}
-
-/* ── SIDEBAR ── */
-.sidebar{
-  width:260px;flex-shrink:0;height:100vh;overflow-y:auto;
-  background:rgba(11,11,20,0.8);
-  backdrop-filter:blur(30px);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  position:relative;z-index:10;
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-.sidebar::-webkit-scrollbar{width:3px}
-.sidebar::-webkit-scrollbar-track{background:transparent}
-.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:99px}
 
-.sb-brand{
-  display:flex;align-items:center;gap:11px;
-  padding:22px 18px 20px;
-  border-bottom:1px solid var(--border);
+/* ── BACKGROUND SCENE ───────────────────────────────────────────── */
+.bg-scene{
+  position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
 }
-.sb-logo{
-  width:38px;height:38px;border-radius:11px;flex-shrink:0;
-  background:linear-gradient(145deg,rgba(255,255,255,0.9),rgba(200,200,230,0.7));
-  display:flex;align-items:center;justify-content:center;font-size:18px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.4),0 1px 0 rgba(255,255,255,0.5) inset;
-  position:relative;overflow:hidden;
+.bg-scene::before{
+  content:'';position:absolute;
+  width:900px;height:900px;
+  top:-200px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(ellipse, rgba(120,80,255,0.22) 0%, rgba(60,40,180,0.10) 40%, transparent 70%);
+  animation:bgpulse 8s ease-in-out infinite alternate;
 }
-.sb-logo::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.4),transparent)}
-.sb-name{font-weight:800;font-size:16px;letter-spacing:-0.4px}
-.sb-tagline{font-size:10px;color:var(--muted);margin-top:1px;font-family:var(--mono)}
-
-.sb-search{padding:14px 14px 10px}
-.sb-search input{
-  width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border);
-  border-radius:9px;padding:8px 12px 8px 34px;color:var(--text);
-  font-family:var(--font);font-size:13px;transition:border-color 0.15s;
+.bg-scene::after{
+  content:'';position:absolute;
+  width:600px;height:600px;
+  bottom:-100px;right:-100px;
+  background:radial-gradient(ellipse, rgba(0,120,255,0.14) 0%, transparent 70%);
+  animation:bgpulse 11s ease-in-out infinite alternate-reverse;
 }
-.sb-search input:focus{outline:none;border-color:var(--border2)}
-.sb-search{position:relative}
-.sb-search svg{position:absolute;left:24px;top:50%;transform:translateY(-50%);opacity:0.3}
+.bg-grain{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:0.5;
+}
+@keyframes bgpulse{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) scale(1.12)}}
 
-.sb-section{padding:14px 14px 4px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-family:var(--mono)}
+/* ── LIQUID GLASS MIXIN (applied via classes) ───────────────────── */
+.glass{
+  position:relative;
+  background:var(--glass-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--border);
+  border-radius:20px;
+  overflow:hidden;
+}
+/* Top specular highlight — the key Apple detail */
+.glass::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:50%;
+  background:var(--glass-shine-top);
+  border-radius:inherit;
+  pointer-events:none;z-index:1;
+}
+/* Diagonal gloss streak */
+.glass::after{
+  content:'';
+  position:absolute;
+  top:-60%;left:-30%;
+  width:70%;height:180%;
+  background:linear-gradient(105deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.0) 50%);
+  transform:rotate(0deg);
+  pointer-events:none;z-index:1;
+}
+.glass:hover{
+  background:var(--glass-bg-hover);
+  border-color:var(--border-bright);
+  transition:background 0.2s, border-color 0.2s;
+}
+.glass > *{position:relative;z-index:2}
 
-.sb-item{
-  display:flex;align-items:center;gap:11px;
-  margin:1px 8px;padding:9px 12px;border-radius:10px;
-  cursor:pointer;transition:all 0.15s;color:var(--muted);
-  font-size:13px;font-weight:500;border:1px solid transparent;
+/* ── NAV ────────────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:52px;
+  width:min(900px, calc(100vw - 40px));
+  background:rgba(20,20,30,0.55);
+  backdrop-filter:blur(32px) saturate(200%);
+  -webkit-backdrop-filter:blur(32px) saturate(200%);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset,
+    0 16px 48px rgba(0,0,0,0.5);
+}
+/* Top shine on nav */
+nav::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.10) 0%,transparent 100%);
+  border-radius:16px 16px 0 0;pointer-events:none;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:9px;
+  font-weight:800;font-size:15px;letter-spacing:-0.3px;
+  text-decoration:none;color:#fff;
+}
+.nav-logo-icon{
+  width:28px;height:28px;
+  background:linear-gradient(145deg,rgba(255,255,255,0.95),rgba(200,200,220,0.7));
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.5) inset;
+}
+.nav-links{display:flex;gap:24px}
+.nav-links a{
+  color:rgba(255,255,255,0.5);font-size:13px;font-weight:500;
+  text-decoration:none;transition:color 0.15s;letter-spacing:0.3px;
+}
+.nav-links a:hover{color:#fff}
+.nav-cta{
+  background:linear-gradient(145deg,rgba(255,255,255,0.92),rgba(220,220,230,0.75));
+  color:#000;
+  padding:8px 18px;border-radius:10px;font-size:13px;font-weight:700;
+  text-decoration:none;letter-spacing:0.2px;transition:opacity 0.15s;
+  box-shadow:0 2px 10px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+.nav-cta:hover{opacity:0.88}
+
+/* ── HERO ───────────────────────────────────────────────────────── */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:110px 24px 80px;
   position:relative;
 }
-.sb-item:hover{background:rgba(255,255,255,0.05);color:var(--text)}
-.sb-item.active{background:rgba(255,255,255,0.08);border-color:var(--border);color:var(--text);font-weight:600}
-.sb-item svg{flex-shrink:0;opacity:0.7}
-.sb-item.active svg{opacity:1}
-.sb-item .badge{margin-left:auto;font-size:9px;font-family:var(--mono);font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase}
-.badge-new{background:rgba(86,194,72,0.15);color:var(--mc)}
-.badge-hot{background:rgba(255,107,107,0.15);color:#ff6b6b}
-.badge-dc{background:rgba(88,101,242,0.15);color:var(--dc)}
-
-/* Category color dots */
-.sb-item[data-cat="mc"].active{border-color:rgba(86,194,72,0.3)}
-.sb-item[data-cat="dc"].active{border-color:rgba(88,101,242,0.3)}
-.sb-item[data-cat="media"].active{border-color:rgba(255,107,107,0.3)}
-.sb-item[data-cat="text"].active{border-color:rgba(245,158,11,0.3)}
-.sb-item[data-cat="util"].active{border-color:rgba(6,182,212,0.3)}
-.sb-item[data-cat="web"].active{border-color:rgba(168,85,247,0.3)}
-
-.sb-footer{margin-top:auto;padding:14px;border-top:1px solid var(--border)}
-.sb-footer p{font-size:11px;color:var(--muted);line-height:1.5;text-align:center}
-.sb-footer span{color:rgba(255,255,255,0.6)}
-
-/* ── MAIN ── */
-.main{flex:1;height:100vh;overflow-y:auto;position:relative;z-index:1}
-.main::-webkit-scrollbar{width:4px}
-.main::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:99px}
-
-/* ── TOP BAR ── */
-.topbar{
-  position:sticky;top:0;z-index:50;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 30px;height:58px;
-  background:rgba(7,7,13,0.75);
-  backdrop-filter:blur(24px);
-  border-bottom:1px solid var(--border);
-}
-.topbar-left{display:flex;align-items:center;gap:12px}
-.topbar-icon{font-size:22px}
-.topbar-title{font-size:17px;font-weight:700;letter-spacing:-0.3px}
-.topbar-cat{
-  font-size:11px;font-family:var(--mono);font-weight:600;
-  padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:0.5px;
-}
-.topbar-right{display:flex;align-items:center;gap:10px}
-
-/* ── CONTENT ── */
-.content{padding:28px 30px 60px;max-width:900px}
-
-/* ── GLASS CARD ── */
-.card{
-  background:var(--surface);
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 18px;
+  background:rgba(255,255,255,0.07);
   backdrop-filter:blur(20px);
-  border:1px solid var(--border);
-  border-radius:16px;padding:22px;margin-bottom:16px;
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:99px;
+  font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);
+  letter-spacing:0.8px;
+  margin-bottom:36px;
+  box-shadow:0 1px 0 rgba(255,255,255,0.12) inset, 0 4px 16px rgba(0,0,0,0.3);
   position:relative;overflow:hidden;
 }
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%);pointer-events:none}
-.card::after{content:'';position:absolute;top:-50%;left:-20%;width:55%;height:160%;background:linear-gradient(110deg,rgba(255,255,255,0.04) 0%,transparent 55%);pointer-events:none}
-.card > *{position:relative;z-index:1}
-.card-title{font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.8px;font-family:var(--mono)}
+.hero-badge::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.10) 0%,transparent 100%);
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
 
-/* ── HOME GRID ── */
-.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.home-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:14px;
-  padding:20px 18px;cursor:pointer;transition:all 0.18s;
+.hero-title{
+  font-size:clamp(64px,11vw,148px);
+  font-weight:900;letter-spacing:-5px;line-height:0.88;
+  margin-bottom:28px;
+  background:linear-gradient(180deg,
+    rgba(255,255,255,1) 0%,
+    rgba(255,255,255,0.85) 50%,
+    rgba(200,190,255,0.6) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-title .dim{
+  background:linear-gradient(180deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0.12) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(15px,2vw,19px);
+  color:rgba(255,255,255,0.45);
+  max-width:440px;line-height:1.65;margin-bottom:48px;font-weight:400;
+}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:80px}
+
+/* Glossy primary button */
+.btn-hero{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 30px;border-radius:14px;
+  font-family:var(--font);font-size:15px;font-weight:700;
+  cursor:pointer;text-decoration:none;
+  background:linear-gradient(145deg,rgba(255,255,255,0.95),rgba(210,205,235,0.80));
+  color:#000;border:none;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.7) inset,
+    0 -1px 0 rgba(0,0,0,0.15) inset,
+    0 8px 32px rgba(0,0,0,0.4),
+    0 2px 8px rgba(180,160,255,0.2);
+  transition:transform 0.12s, box-shadow 0.12s;
   position:relative;overflow:hidden;
 }
-.home-card::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.07) 0%,transparent 100%);pointer-events:none}
-.home-card > *{position:relative;z-index:1}
-.home-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,0.4)}
-.hc-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;overflow:hidden}
-.hc-icon-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.3) 0%,transparent 100%)}
-.hc-icon-wrap svg,.hc-icon-wrap span{position:relative;z-index:1}
-.hc-name{font-size:14px;font-weight:700;margin-bottom:5px;letter-spacing:-0.2px}
-.hc-desc{font-size:12px;color:var(--muted);line-height:1.4}
-.hc-badge{position:absolute;top:14px;right:14px;font-size:9px;font-weight:700;font-family:var(--mono);padding:2px 7px;border-radius:4px;text-transform:uppercase;z-index:2}
-
-/* ── FORM ── */
-.field{margin-bottom:14px}
-.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px;font-family:var(--mono)}
-.field input[type=text],.field input[type=number],.field input[type=password],.field textarea,.field select{
-  width:100%;background:rgba(0,0,0,0.35);border:1px solid var(--border);
-  border-radius:9px;padding:10px 13px;color:var(--text);
-  font-family:var(--font);font-size:13px;transition:border-color 0.15s;resize:vertical;
-  box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;
+.btn-hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.5) 0%,transparent 100%);
+  border-radius:14px 14px 0 0;
 }
-.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--border2)}
-.field textarea{font-family:var(--mono);font-size:12px;min-height:90px;line-height:1.6}
-.field select option{background:#1a1a2e}
+.btn-hero:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,0.7) inset,0 -1px 0 rgba(0,0,0,0.15) inset,0 12px 40px rgba(0,0,0,0.5),0 3px 10px rgba(180,160,255,0.3)}
+.btn-hero:active{transform:translateY(0)}
+
+.btn-ghost-hero{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 30px;border-radius:14px;
+  font-family:var(--font);font-size:15px;font-weight:600;
+  cursor:pointer;text-decoration:none;
+  background:rgba(255,255,255,0.06);
+  color:rgba(255,255,255,0.7);
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(20px);
+  box-shadow:0 1px 0 rgba(255,255,255,0.10) inset, 0 8px 24px rgba(0,0,0,0.3);
+  transition:all 0.15s;
+  position:relative;overflow:hidden;
+}
+.btn-ghost-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,transparent 100%)}
+.btn-ghost-hero:hover{background:rgba(255,255,255,0.10);color:#fff}
+
+/* Hero stats row */
+.hero-stats{
+  display:flex;
+  background:rgba(255,255,255,0.055);
+  backdrop-filter:blur(28px);
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,0.12) inset,0 -1px 0 rgba(0,0,0,0.3) inset,0 20px 60px rgba(0,0,0,0.45);
+  position:relative;
+}
+.hero-stats::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.10) 0%,transparent 100%);pointer-events:none}
+.hero-stat{padding:22px 48px;text-align:center;border-right:1px solid rgba(255,255,255,0.08)}
+.hero-stat:last-child{border-right:none}
+.hero-stat-val{font-size:30px;font-weight:800;letter-spacing:-1px;background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.7) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-stat-lbl{font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;font-weight:600}
+
+/* ── SECTIONS ───────────────────────────────────────────────────── */
+.section{padding:100px 40px;max-width:1060px;margin:0 auto}
+.eyebrow{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:3px;font-family:var(--mono);margin-bottom:14px}
+.section-title{
+  font-size:clamp(38px,5vw,62px);font-weight:900;letter-spacing:-2px;line-height:0.95;margin-bottom:56px;
+  background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* ── TOOL GRID ──────────────────────────────────────────────────── */
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.tool-card{
+  padding:26px 24px;border-radius:18px;cursor:pointer;
+  background:rgba(255,255,255,0.055);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.09);
+  transition:all 0.2s;
+  position:relative;overflow:hidden;
+}
+/* card gloss */
+.tool-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:55%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.10) 0%,transparent 100%);
+  pointer-events:none;border-radius:18px 18px 0 0;
+}
+.tool-card::after{
+  content:'';position:absolute;top:-60%;left:-30%;width:65%;height:180%;
+  background:linear-gradient(105deg,rgba(255,255,255,0.07) 0%,transparent 50%);
+  pointer-events:none;
+}
+.tool-card:hover{
+  background:rgba(255,255,255,0.09);
+  border-color:rgba(255,255,255,0.18);
+  transform:translateY(-2px);
+  box-shadow:0 16px 48px rgba(0,0,0,0.5),0 1px 0 rgba(255,255,255,0.15) inset;
+}
+.tool-card.active{
+  background:rgba(255,255,255,0.10);
+  border-color:rgba(255,255,255,0.22);
+  box-shadow:0 1px 0 rgba(255,255,255,0.18) inset,0 8px 32px rgba(0,0,0,0.4);
+}
+.tool-card > *{position:relative;z-index:2}
+.tc-icon{font-size:26px;margin-bottom:14px;display:block}
+.tc-name{font-size:16px;font-weight:700;letter-spacing:-0.3px;margin-bottom:6px}
+.tc-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5}
+.tc-badge{
+  position:absolute;top:16px;right:16px;z-index:3;
+  font-size:10px;font-weight:700;font-family:var(--mono);
+  background:linear-gradient(135deg,rgba(255,255,255,0.95),rgba(220,215,240,0.85));
+  color:#000;padding:3px 8px;border-radius:5px;letter-spacing:0.3px;
+  box-shadow:0 1px 0 rgba(255,255,255,0.5) inset,0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* ── APP WRAPPER ────────────────────────────────────────────────── */
+.app-section{padding:0 40px 100px;max-width:1060px;margin:0 auto}
+.app-wrap{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(32px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:22px;overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,0.12) inset,0 -1px 0 rgba(0,0,0,0.4) inset,0 32px 80px rgba(0,0,0,0.5);
+  position:relative;
+}
+.app-wrap::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:45%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.09) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
+}
+.app-wrap::after{
+  content:'';position:absolute;top:-50%;left:-25%;width:60%;height:180%;
+  background:linear-gradient(110deg,rgba(255,255,255,0.05) 0%,transparent 55%);
+  pointer-events:none;z-index:0;
+}
+.app-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 26px;border-bottom:1px solid rgba(255,255,255,0.07);
+  position:relative;z-index:2;
+}
+.app-head-left{display:flex;align-items:center;gap:12px}
+.app-head-icon{font-size:20px}
+.app-head-name{font-size:15px;font-weight:700;letter-spacing:-0.2px}
+.app-head-desc{font-size:12px;color:rgba(255,255,255,0.35)}
+.app-body{padding:26px;display:none;position:relative;z-index:2}
+.app-body.active{display:block;animation:fadein 0.2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── FORM ───────────────────────────────────────────────────────── */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px;font-family:var(--mono)}
+.field input[type=text],
+.field input[type=number],
+.field textarea,
+.field select{
+  width:100%;
+  background:rgba(0,0,0,0.35);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:11px;
+  padding:11px 15px;
+  color:#fff;font-family:var(--font);font-size:14px;
+  transition:border-color 0.15s,background 0.15s;
+  resize:vertical;
+  box-shadow:0 1px 0 rgba(255,255,255,0.05) inset,0 -1px 0 rgba(0,0,0,0.3) inset;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+  outline:none;
+  border-color:rgba(255,255,255,0.25);
+  background:rgba(0,0,0,0.45);
+}
+.field textarea{font-family:var(--mono);font-size:13px;min-height:100px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
 
-/* ── BUTTONS ── */
+/* ── BUTTONS ────────────────────────────────────────────────────── */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  padding:10px 20px;border-radius:10px;font-family:var(--font);
-  font-size:13px;font-weight:700;cursor:pointer;transition:all 0.14s;border:none;
-  letter-spacing:0.2px;position:relative;overflow:hidden;
+  padding:11px 22px;border-radius:12px;font-family:var(--font);
+  font-size:13px;font-weight:700;cursor:pointer;transition:all 0.14s;
+  border:none;letter-spacing:0.2px;position:relative;overflow:hidden;
 }
-.btn::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.15) 0%,transparent 100%);pointer-events:none}
-.btn span{position:relative;z-index:1}
-.btn-white{background:linear-gradient(145deg,rgba(255,255,255,0.94),rgba(220,215,240,0.8));color:#000;box-shadow:0 1px 0 rgba(255,255,255,0.6) inset,0 -1px 0 rgba(0,0,0,0.12) inset,0 6px 18px rgba(0,0,0,0.3)}
-.btn-white:hover:not(:disabled){opacity:0.88;transform:translateY(-1px)}
-.btn-white:disabled{opacity:0.3;cursor:not-allowed}
-.btn-ghost{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);box-shadow:0 1px 0 rgba(255,255,255,0.07) inset}
-.btn-ghost:hover{background:rgba(255,255,255,0.10);color:var(--text);border-color:var(--border2)}
-.btn-mc{background:linear-gradient(145deg,#56c248,#3da830);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 6px 18px rgba(86,194,72,0.25)}
-.btn-mc:hover{opacity:0.88;transform:translateY(-1px)}
-.btn-dc{background:linear-gradient(145deg,#6475f5,#4a59e8);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 6px 18px rgba(88,101,242,0.3)}
-.btn-dc:hover{opacity:0.88;transform:translateY(-1px)}
+.btn::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.18) 0%,transparent 100%);pointer-events:none}
+.btn > *{position:relative;z-index:1}
+.btn-w{
+  background:linear-gradient(145deg,rgba(255,255,255,0.94),rgba(215,210,235,0.82));
+  color:#000;
+  box-shadow:0 1px 0 rgba(255,255,255,0.7) inset,0 -1px 0 rgba(0,0,0,0.15) inset,0 6px 20px rgba(0,0,0,0.35);
+}
+.btn-w:hover{opacity:0.88;transform:translateY(-1px)}
+.btn-w:disabled{opacity:0.3;cursor:not-allowed;transform:none}
+.btn-g{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.11);
+  color:rgba(255,255,255,0.65);
+  box-shadow:0 1px 0 rgba(255,255,255,0.08) inset;
+}
+.btn-g:hover{background:rgba(255,255,255,0.11);color:#fff;border-color:rgba(255,255,255,0.18)}
 .btn-full{width:100%}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 
-/* ── DROPZONE ── */
+/* ── DROPZONE ───────────────────────────────────────────────────── */
 .dz{
-  border:1px dashed var(--border);border-radius:12px;
-  padding:40px 24px;text-align:center;cursor:pointer;
-  transition:all 0.18s;position:relative;background:rgba(0,0,0,0.2);
-  margin-bottom:16px;
+  border:1px solid rgba(255,255,255,0.09);border-radius:14px;
+  padding:44px 24px;text-align:center;cursor:pointer;
+  background:rgba(0,0,0,0.25);
+  transition:all 0.18s;position:relative;margin-bottom:20px;
+  box-shadow:0 1px 0 rgba(255,255,255,0.07) inset;
 }
-.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.dz:hover,.dz.over{border-color:var(--border2);background:rgba(255,255,255,0.04)}
-.dz-icon{font-size:32px;display:block;margin-bottom:10px}
+.dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz:hover,.dz.over{border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.05)}
+.dz-icon{font-size:34px;display:block;margin-bottom:10px}
 .dz-title{font-size:14px;font-weight:700;margin-bottom:5px}
-.dz-sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.dz-sub{font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--mono)}
 
-/* ── OUTPUT ── */
-.out-box{
-  background:rgba(0,0,0,0.3);border:1px solid var(--border);
-  border-radius:9px;padding:13px;margin-top:12px;
+/* ── PROGRESS ───────────────────────────────────────────────────── */
+.prog-wrap{display:none;margin-top:14px}
+.prog-bg{
+  background:rgba(255,255,255,0.06);border-radius:99px;height:4px;overflow:hidden;margin-bottom:8px;
+  box-shadow:0 1px 0 rgba(0,0,0,0.4) inset;
+}
+.prog-fill{
+  height:100%;width:0%;transition:width 0.1s;border-radius:99px;
+  background:linear-gradient(90deg,rgba(255,255,255,0.7),rgba(255,255,255,1));
+  box-shadow:0 0 8px rgba(255,255,255,0.5);
+}
+.prog-lbl{font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--mono)}
+
+/* ── RESULT BOX ─────────────────────────────────────────────────── */
+.res-box{
+  background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.09);
+  border-radius:14px;padding:18px;margin-top:14px;display:none;
+  box-shadow:0 1px 0 rgba(255,255,255,0.07) inset;
+}
+.output-box{
+  background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:14px;margin-top:12px;
   font-family:var(--mono);font-size:12px;
   white-space:pre-wrap;word-break:break-all;
-  min-height:56px;max-height:280px;overflow-y:auto;
-  color:rgba(255,255,255,0.6);line-height:1.7;
+  min-height:56px;max-height:300px;overflow-y:auto;
+  color:rgba(255,255,255,0.65);line-height:1.7;
 }
-.out-img{display:block;width:100%;border-radius:9px;margin-top:12px;border:1px solid var(--border)}
-.res-card{background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:14px;display:none}
+.output-img{display:block;width:100%;border-radius:10px;margin-top:14px;border:1px solid rgba(255,255,255,0.09)}
 
-/* ── PROGRESS ── */
-.prog{display:none;margin-top:13px}
-.prog-bg{background:rgba(255,255,255,0.07);border-radius:99px;height:3px;overflow:hidden;margin-bottom:7px;box-shadow:0 1px 0 rgba(0,0,0,0.4) inset}
-.prog-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,rgba(255,255,255,0.6),#fff);box-shadow:0 0 8px rgba(255,255,255,0.4);transition:width 0.1s}
-.prog-lbl{font-size:11px;color:var(--muted);font-family:var(--mono)}
-
-/* ── PILLS ── */
-.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.pill{font-size:10px;font-family:var(--mono);font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid;letter-spacing:0.3px}
-.pill-def{border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.5)}
-.pill-gr{border-color:rgba(86,194,72,0.3);color:#56c248}
-.pill-bl{border-color:rgba(88,101,242,0.3);color:#7b8ef8}
-.pill-yl{border-color:rgba(245,158,11,0.3);color:#f59e0b}
-.pill-rd{border-color:rgba(255,107,107,0.3);color:#ff6b6b}
-.pill-cy{border-color:rgba(6,182,212,0.3);color:#06b6d4}
-
-/* ── STAT GRID ── */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:14px}
-.stat-box{background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center;position:relative;overflow:hidden}
-.stat-box::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.05) 0%,transparent 100%)}
-.stat-val{font-size:24px;font-weight:800;letter-spacing:-1px;background:linear-gradient(180deg,#fff,rgba(255,255,255,0.65));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative}
-.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;font-family:var(--mono);position:relative}
-
-/* ── MC SPECIFIC ── */
-.mc-color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px}
-.mc-color{
-  border-radius:9px;overflow:hidden;cursor:pointer;
-  border:1px solid var(--border);transition:transform 0.12s,box-shadow 0.12s;
+/* ── PILLS ──────────────────────────────────────────────────────── */
+.pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.pill{
+  font-size:11px;font-family:var(--mono);font-weight:600;
+  padding:4px 10px;border-radius:6px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.10);
+  color:rgba(255,255,255,0.6);
 }
-.mc-color:hover{transform:scale(1.04);box-shadow:0 6px 20px rgba(0,0,0,0.4)}
-.mc-color-swatch{height:44px;position:relative}
-.mc-color-swatch::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.25) 0%,transparent 100%)}
-.mc-color-name{font-size:10px;font-family:var(--mono);padding:5px 8px;background:rgba(0,0,0,0.3);color:rgba(255,255,255,0.6);font-weight:600}
+.pill-gr{background:rgba(48,209,88,0.10);border-color:rgba(48,209,88,0.25);color:var(--green)}
+.pill-bl{background:rgba(10,132,255,0.10);border-color:rgba(10,132,255,0.25);color:var(--blue)}
+.pill-yl{background:rgba(255,214,10,0.10);border-color:rgba(255,214,10,0.25);color:var(--yellow)}
 
-/* ── DISCORD EMBED PREVIEW ── */
-.dc-embed{
-  border-left:4px solid var(--dc);border-radius:4px 8px 8px 4px;
-  background:rgba(88,101,242,0.08);border-top:1px solid var(--border);
-  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
-  padding:14px 16px;margin-top:14px;
-}
-.dc-embed-author{font-size:12px;font-weight:700;margin-bottom:6px;color:rgba(255,255,255,0.7)}
-.dc-embed-title{font-size:15px;font-weight:700;color:#7b8ef8;margin-bottom:6px}
-.dc-embed-desc{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.5;font-family:var(--mono)}
-.dc-embed-footer{font-size:11px;color:var(--muted);margin-top:10px;display:flex;align-items:center;gap:6px}
-
-.dc-msg-preview{
-  background:rgba(0,0,0,0.3);border-radius:10px;padding:14px 16px;margin-top:12px;
-  border:1px solid var(--border);
-}
-.dc-msg-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--dc),#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.dc-msg-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.dc-msg-name{font-size:14px;font-weight:700}
-.dc-msg-time{font-size:11px;color:var(--muted)}
-.dc-msg-body{font-size:14px;line-height:1.5;color:rgba(255,255,255,0.75);margin-left:46px}
-
-/* ── COLOR PREVIEW ── */
-.color-prev{width:100%;height:70px;border-radius:10px;margin-bottom:13px;border:1px solid var(--border);position:relative;overflow:hidden}
-.color-prev::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.22) 0%,transparent 100%)}
-.swatch-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-.swatch{width:28px;height:28px;border-radius:7px;cursor:pointer;transition:transform 0.12s;border:1px solid rgba(255,255,255,0.12);position:relative;overflow:hidden;flex-shrink:0}
-.swatch::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.28) 0%,transparent 100%)}
-.swatch:hover{transform:scale(1.18)}
-
-/* ── PASSWORD ── */
-.pw-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px}
-.pw-opt{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;cursor:pointer;font-size:12px;color:var(--muted);transition:all 0.15s}
-.pw-opt:hover{border-color:var(--border2);color:var(--text)}
-.pw-opt input{accent-color:#fff}
-.pw-entry{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:9px;padding:10px 13px;margin-bottom:7px;font-family:var(--mono);font-size:12px;position:relative;overflow:hidden}
-.pw-entry::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.04) 0%,transparent 100%);pointer-events:none}
-.pw-copy-btn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;transition:all 0.14s;white-space:nowrap;font-family:var(--font);position:relative;z-index:1}
-.pw-copy-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
-
-/* ── MC ENCHANT ── */
-.ench-out{
-  font-family:var(--mono);font-size:14px;padding:14px;
-  background:rgba(0,100,0,0.12);border:1px solid rgba(86,194,72,0.2);
-  border-radius:9px;color:#7ddf64;letter-spacing:0.5px;margin-top:12px;line-height:1.8;
-  min-height:50px;
-}
-
-/* ── SERVER STATUS ── */
-.server-status-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  background:rgba(0,0,0,0.25);border:1px solid var(--border);
-  border-radius:10px;padding:12px 16px;margin-top:10px;
-}
-.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.status-dot.online{background:#56c248;box-shadow:0 0 8px #56c248}
-.status-dot.offline{background:#ff453a;box-shadow:0 0 8px #ff453a}
-.status-dot.checking{background:#f59e0b;animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-
-/* ── TOAST ── */
-#toast{position:fixed;bottom:22px;right:22px;z-index:9999;background:rgba(20,20,30,0.85);backdrop-filter:blur(20px);border:1px solid var(--border2);border-radius:10px;padding:11px 16px;font-size:12px;font-weight:600;font-family:var(--mono);transform:translateY(70px);opacity:0;transition:all 0.2s;pointer-events:none;box-shadow:0 1px 0 rgba(255,255,255,0.1) inset,0 12px 32px rgba(0,0,0,0.5)}
-#toast.show{transform:translateY(0);opacity:1}
-#toast.ok{border-color:rgba(86,194,72,0.4);color:#56c248}
-#toast.err{border-color:rgba(255,69,58,0.4);color:#ff453a}
-
-/* ── TOGGLE ── */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
-.toggle-row:last-child{border-bottom:none}
-.toggle-label{font-size:13px}
-.toggle-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,0.1);border:1px solid var(--border);border-radius:99px;cursor:pointer;transition:0.2s}
-.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;background:#fff;border-radius:50%;transition:0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.4)}
-.toggle input:checked+.toggle-slider{background:linear-gradient(135deg,#56c248,#3da830)}
-.toggle input:checked+.toggle-slider::before{transform:translateX(18px)}
-
-/* ── HOMEPAGE ── */
-.welcome-banner{
-  background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;margin-bottom:20px;
+/* ── STATS ──────────────────────────────────────────────────────── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+.stat-box{
+  background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;padding:14px;text-align:center;
   position:relative;overflow:hidden;
 }
-.welcome-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.07) 0%,transparent 100%);pointer-events:none}
-.welcome-banner::after{content:'';position:absolute;top:-50%;left:-20%;width:55%;height:160%;background:linear-gradient(110deg,rgba(88,101,242,0.06) 0%,transparent 55%);pointer-events:none}
-.welcome-banner > *{position:relative;z-index:1}
-.wb-title{font-size:clamp(24px,3vw,36px);font-weight:900;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,0.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.wb-sub{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.6}
-.wb-tags{display:flex;gap:8px;flex-wrap:wrap}
-.wb-tag{font-size:11px;font-weight:600;font-family:var(--mono);padding:4px 10px;border-radius:6px;border:1px solid}
+.stat-box::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%)}
+.stat-val{font-size:26px;font-weight:800;letter-spacing:-1px;background:linear-gradient(180deg,#fff,rgba(255,255,255,0.65));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-top:3px;font-family:var(--mono);position:relative}
 
-/* ── VIDEO PREVIEW ── */
-#gif-prev{display:none;margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
-#gif-vid{width:100%;max-height:200px;object-fit:contain;display:block;background:#000}
+/* ── COLOR ──────────────────────────────────────────────────────── */
+.color-prev{
+  width:100%;height:76px;border-radius:12px;margin-bottom:14px;
+  border:1px solid rgba(255,255,255,0.10);transition:background 0.2s;
+  position:relative;overflow:hidden;
+}
+.color-prev::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.25) 0%,transparent 100%)}
+.swatch-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.swatch{
+  width:30px;height:30px;border-radius:8px;cursor:pointer;
+  transition:transform 0.12s,box-shadow 0.12s;
+  border:1px solid rgba(255,255,255,0.15);
+  position:relative;overflow:hidden;
+}
+.swatch::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.3) 0%,transparent 100%)}
+.swatch:hover{transform:scale(1.18);box-shadow:0 4px 12px rgba(0,0,0,0.5)}
 
-/* ── IMG COMPARE ── */
-.img-cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.img-cmp-lbl{font-size:10px;color:var(--muted);font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.img-cmp img{width:100%;border-radius:8px;border:1px solid var(--border);max-height:170px;object-fit:contain;background:#000}
+/* ── PASSWORD ───────────────────────────────────────────────────── */
+.pw-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.pw-opt{
+  display:flex;align-items:center;gap:9px;
+  background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:10px 13px;cursor:pointer;
+  font-size:13px;color:rgba(255,255,255,0.5);transition:all 0.15s;
+}
+.pw-opt:hover{border-color:rgba(255,255,255,0.18);color:#fff}
+.pw-opt input{accent-color:#fff}
+.pw-entry{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:12px 16px;margin-bottom:8px;
+  font-family:var(--mono);font-size:13px;
+  position:relative;overflow:hidden;
+}
+.pw-entry::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.04) 0%,transparent 100%)}
+.pw-copy-btn{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.5);border-radius:7px;padding:5px 12px;
+  font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s;
+  text-transform:uppercase;letter-spacing:0.4px;font-family:var(--font);
+  white-space:nowrap;position:relative;z-index:1;
+}
+.pw-copy-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
 
-/* ── QR ── */
-#qr-out{display:none;text-align:center;margin-top:16px}
-#qr-out canvas{border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,0.5)}
+/* ── VIDEO PREVIEW ──────────────────────────────────────────────── */
+#gif-prev{display:none;margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.09)}
+#gif-vid{width:100%;max-height:210px;object-fit:contain;display:block;background:#000}
 
-/* ── MOBILE SIDEBAR ── */
-.mob-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:rgba(11,11,20,0.85);border:1px solid var(--border);border-radius:9px;width:36px;height:36px;cursor:pointer;align-items:center;justify-content:center;backdrop-filter:blur(12px)}
-@media(max-width:860px){
-  .mob-toggle{display:flex}
-  .sidebar{position:fixed;left:-270px;top:0;height:100vh;z-index:100;transition:left 0.25s}
-  .sidebar.open{left:0}
-  .main{width:100vw}
-  .topbar,.content{padding-left:60px}
-  .content{padding-right:16px}
-  .row2,.row3,.row4{grid-template-columns:1fr}
-  .home-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+/* ── IMG COMPARE ────────────────────────────────────────────────── */
+.img-cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.img-cmp-lbl{font-size:10px;color:rgba(255,255,255,0.35);font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.img-cmp img{width:100%;border-radius:9px;border:1px solid rgba(255,255,255,0.09);max-height:180px;object-fit:contain;background:#000}
+
+/* ── QR ─────────────────────────────────────────────────────────── */
+#qr-out{display:none;text-align:center;margin-top:18px}
+#qr-out canvas{border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+
+/* ── TOAST ──────────────────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:rgba(30,30,40,0.80);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px;padding:12px 18px;
+  font-size:13px;font-weight:600;font-family:var(--mono);
+  transform:translateY(70px);opacity:0;transition:all 0.22s;pointer-events:none;
+  box-shadow:0 1px 0 rgba(255,255,255,0.12) inset,0 16px 40px rgba(0,0,0,0.5);
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.ok{border-color:rgba(48,209,88,0.4);color:var(--green)}
+#toast.err{border-color:rgba(255,69,58,0.4);color:var(--red)}
+
+/* ── FOOTER ─────────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid rgba(255,255,255,0.07);
+  padding:32px 40px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  position:relative;z-index:1;
+}
+footer p{font-size:13px;color:rgba(255,255,255,0.3)}
+footer span{color:#fff}
+
+/* ── MOBILE ─────────────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{top:10px;padding:0 16px}
+  .nav-links{display:none}
+  .hero{padding:90px 20px 60px}
+  .hero-stats{flex-direction:column}
+  .hero-stat{border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);padding:18px 32px}
+  .hero-stat:last-child{border-bottom:none}
+  .section,.app-section{padding-left:20px;padding-right:20px}
+  .row2,.row3{grid-template-columns:1fr}
+  footer{padding:24px 20px}
   .pw-opts{grid-template-columns:1fr}
+  .img-cmp{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-<div class="bg"></div>
 
-<button class="mob-toggle" id="mob-toggle" title="Menu">
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect y="2" width="16" height="1.8" rx="1" fill="white"/><rect y="7.1" width="16" height="1.8" rx="1" fill="white"/><rect y="12.2" width="16" height="1.8" rx="1" fill="white"/></svg>
-</button>
+<div class="bg-scene"><div class="bg-grain"></div></div>
 
-<!-- ══ SIDEBAR ══════════════════════════════════════════════════════ -->
-<aside class="sidebar" id="sidebar">
-  <div class="sb-brand">
-    <div class="sb-logo">⚡</div>
-    <div>
-      <div class="sb-name">ToolBox</div>
-      <div class="sb-tagline">// all-in-one</div>
-    </div>
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon">⚡</div>
+    TOOLBOX
+  </a>
+  <div class="nav-links">
+    <a href="#tools">TOOLS</a>
+    <a href="#app">NUTZEN</a>
   </div>
+  <a class="nav-cta" href="#app">START NOW ⚡</a>
+</nav>
 
-  <div class="sb-search">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="position:absolute;left:24px;top:25px;opacity:0.3"><circle cx="6" cy="6" r="4.5" stroke="white" stroke-width="1.5"/><path d="M10 10L12.5 12.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-    <input type="text" id="sb-search" placeholder="Tools suchen…">
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    8 Tools · Lokal · Privat
   </div>
+  <h1 class="hero-title">CONVERT<br><span class="dim">ANYTHING.</span></h1>
+  <p class="hero-sub">Das schnellste Tool-Set im Browser.<br>Kein Upload. Kein Server. Kein Tracking.</p>
+  <div class="hero-btns">
+    <a class="btn-hero" href="#app"><span>START NOW ⚡</span></a>
+    <a class="btn-ghost-hero" href="#tools"><span>TOOLS ERKUNDEN →</span></a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-val">8</div><div class="hero-stat-lbl">Tools</div></div>
+    <div class="hero-stat"><div class="hero-stat-val">0KB</div><div class="hero-stat-lbl">Uploads</div></div>
+    <div class="hero-stat"><div class="hero-stat-val">100%</div><div class="hero-stat-lbl">Privat</div></div>
+  </div>
+</section>
 
-  <div class="sb-section">Allgemein</div>
-  <div class="sb-item active" data-tool="home" data-cat="util">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1.5 6.5L8 1.5L14.5 6.5V14H10V10H6V14H1.5V6.5Z" stroke="white" stroke-width="1.4" stroke-linejoin="round"/></svg>
-    Übersicht
+<!-- TOOLS -->
+<section id="tools" class="section">
+  <div class="eyebrow">// alle tools</div>
+  <h2 class="section-title">WÄHLE DEIN<br>WERKZEUG.</h2>
+  <div class="tool-grid">
+    <div class="tool-card active" data-tool="gif"><span class="tc-badge">HOT</span><span class="tc-icon">🎬</span><div class="tc-name">MP4 → GIF</div><div class="tc-desc">Video in GIF konvertieren mit FPS & Trim-Kontrolle.</div></div>
+    <div class="tool-card" data-tool="img"><span class="tc-icon">🖼️</span><div class="tc-name">Bild komprimieren</div><div class="tc-desc">JPEG & PNG ohne sichtbaren Qualitätsverlust verkleinern.</div></div>
+    <div class="tool-card" data-tool="qr"><span class="tc-icon">⬛</span><div class="tc-name">QR Generator</div><div class="tc-desc">QR-Codes aus URLs. Farben anpassbar, PNG-Download.</div></div>
+    <div class="tool-card" data-tool="b64"><span class="tc-icon">🔣</span><div class="tc-name">Base64 Coder</div><div class="tc-desc">Text sofort in Base64 kodieren und dekodieren.</div></div>
+    <div class="tool-card" data-tool="json"><span class="tc-icon">{ }</span><div class="tc-name">JSON Formatter</div><div class="tc-desc">JSON formatieren, validieren und minimieren.</div></div>
+    <div class="tool-card" data-tool="wc"><span class="tc-icon">📊</span><div class="tc-name">Text Analyse</div><div class="tc-desc">Zeichen, Wörter, Sätze, Lesezeit und Top-Wörter.</div></div>
+    <div class="tool-card" data-tool="color"><span class="tc-icon">🎨</span><div class="tc-name">Farb Konverter</div><div class="tc-desc">HEX ↔ RGB ↔ HSL + fertiger CSS-Output.</div></div>
+    <div class="tool-card" data-tool="pass"><span class="tc-icon">🔐</span><div class="tc-name">Passwort Gen</div><div class="tc-desc">Kryptografisch sichere Passwörter lokal generieren.</div></div>
   </div>
+</section>
 
-  <div class="sb-section">🟩 Minecraft</div>
-  <div class="sb-item" data-tool="mc-color" data-cat="mc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#56c248"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#a16207"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#60a5fa"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#f87171"/></svg>
-    Farb-Codes
-    <span class="badge badge-new">NEU</span>
-  </div>
-  <div class="sb-item" data-tool="mc-enchant" data-cat="mc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.5 5.5H14.5L10.5 8.5L12 13L8 10L4 13L5.5 8.5L1.5 5.5H6.5L8 1Z" stroke="#56c248" stroke-width="1.4" stroke-linejoin="round"/></svg>
-    Enchant Text
-  </div>
-  <div class="sb-item" data-tool="mc-server" data-cat="mc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="4" rx="1.5" stroke="#56c248" stroke-width="1.4"/><rect x="1" y="8" width="14" height="4" rx="1.5" stroke="#56c248" stroke-width="1.4"/><circle cx="12.5" cy="4" r="1" fill="#56c248"/><circle cx="12.5" cy="10" r="1" fill="#56c248"/></svg>
-    Server-Status
-  </div>
-  <div class="sb-item" data-tool="mc-motd" data-cat="mc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="#56c248" stroke-width="1.5" stroke-linecap="round"/></svg>
-    MOTD Builder
-  </div>
-
-  <div class="sb-section">🟣 Discord</div>
-  <div class="sb-item" data-tool="dc-embed" data-cat="dc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="#5865f2" stroke-width="1.4"/><path d="M4 4h8M4 8h6M4 11h7" stroke="#5865f2" stroke-width="1.3" stroke-linecap="round"/></svg>
-    Embed Builder
-    <span class="badge badge-hot">HOT</span>
-  </div>
-  <div class="sb-item" data-tool="dc-timestamp" data-cat="dc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#5865f2" stroke-width="1.4"/><path d="M8 5v3.5L10.5 10" stroke="#5865f2" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Timestamp Gen
-  </div>
-  <div class="sb-item" data-tool="dc-format" data-cat="dc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M5 8h6M4 12h8" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round"/></svg>
-    Markdown Format
-  </div>
-  <div class="sb-item" data-tool="dc-colors" data-cat="dc">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#5865f2" stroke-width="1.4"/><path d="M5 8c0-1.66 1.34-3 3-3s3 1.34 3 3" stroke="#5865f2" stroke-width="1.3"/><circle cx="8" cy="11" r="1.2" fill="#5865f2"/></svg>
-    ANSI Farben
-    <span class="badge badge-new">NEU</span>
-  </div>
-
-  <div class="sb-section">🎬 Medien</div>
-  <div class="sb-item" data-tool="gif" data-cat="media">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2.5" stroke="white" stroke-width="1.4"/><path d="M6 6v4l4-2-4-2z" fill="white"/></svg>
-    MP4 → GIF
-    <span class="badge badge-hot">HOT</span>
-  </div>
-  <div class="sb-item" data-tool="img-compress" data-cat="media">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="white" stroke-width="1.4"/><path d="M4 11l3-3 2 2 2-3 2 4" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1.3" fill="white"/></svg>
-    Bild komprimieren
-  </div>
-  <div class="sb-item" data-tool="qr" data-cat="media">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="white" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="white" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="white" stroke-width="1.4"/><rect x="9" y="9" width="3" height="3" fill="white" rx="0.5"/><rect x="13" y="9" width="3" height="3" fill="white" rx="0.5"/><rect x="9" y="13" width="7" height="3" rx="0.5" fill="white"/></svg>
-    QR Generator
-  </div>
-
-  <div class="sb-section">📝 Text & Code</div>
-  <div class="sb-item" data-tool="b64" data-cat="text">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h7" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-    Base64 Coder
-  </div>
-  <div class="sb-item" data-tool="json" data-cat="text">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 2C3.5 2 3 3 3 4v2c0 1-.5 1.5-1.5 2C2.5 8.5 3 9 3 10v2c0 1 .5 2 2 2M11 2c1.5 0 2 1 2 2v2c0 1 .5 1.5 1.5 2-1 .5-1.5 1-1.5 2v2c0 1-.5 2-2 2" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
-    JSON Formatter
-  </div>
-  <div class="sb-item" data-tool="wc" data-cat="text">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 7h12M2 10h8M2 13h5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-    Text Analyse
-  </div>
-  <div class="sb-item" data-tool="regex" data-cat="text">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="4.5" r="2" stroke="white" stroke-width="1.4"/><path d="M8 7v5M5.5 13l2.5-2 2.5 2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Regex Tester
-  </div>
-
-  <div class="sb-section">🔧 Utilities</div>
-  <div class="sb-item" data-tool="color" data-cat="util">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="white" stroke-width="1.4"/><path d="M8 4v8M4 8h8" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>
-    Farb Konverter
-  </div>
-  <div class="sb-item" data-tool="pass" data-cat="util">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="white" stroke-width="1.4"/><path d="M5 7V5a3 3 0 016 0v2" stroke="white" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="10.5" r="1" fill="white"/></svg>
-    Passwort Gen
-  </div>
-  <div class="sb-item" data-tool="hash" data-cat="util">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 2L4 14M12 2L10 14M2 6h12M2 10h12" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
-    Hash Generator
-  </div>
-  <div class="sb-item" data-tool="uuid" data-cat="util">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="8" rx="2" stroke="white" stroke-width="1.4"/><path d="M5 8h6" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="8" r="1.2" fill="white"/><circle cx="12" cy="8" r="1.2" fill="white"/></svg>
-    UUID Generator
-  </div>
-
-  <div class="sb-footer">
-    <p>Alles <span>lokal</span> im Browser<br>Kein Upload · Kein Tracking</p>
-  </div>
-</aside>
-
-<!-- ══ MAIN ═══════════════════════════════════════════════════════ -->
-<div class="main" id="main">
-  <div class="topbar">
-    <div class="topbar-left">
-      <span class="topbar-icon" id="tb-icon">🏠</span>
-      <span class="topbar-title" id="tb-title">Übersicht</span>
-      <span class="topbar-cat" id="tb-cat" style="background:rgba(6,182,212,0.12);color:#06b6d4">Allgemein</span>
-    </div>
-    <div class="topbar-right">
-      <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">100% lokal ⚡</span>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <!-- ── HOME ── -->
-    <div class="page active" id="page-home">
-      <div class="welcome-banner">
-        <div class="wb-title">TOOLBOX ⚡</div>
-        <div class="wb-sub">Dein All-in-One Browser-Tool für Minecraft, Discord, Medien, Text & mehr.<br>Keine Registrierung. Alles lokal. Alles kostenlos.</div>
-        <div class="wb-tags">
-          <span class="wb-tag" style="background:rgba(86,194,72,0.1);border-color:rgba(86,194,72,0.3);color:#56c248">🟩 Minecraft</span>
-          <span class="wb-tag" style="background:rgba(88,101,242,0.1);border-color:rgba(88,101,242,0.3);color:#7b8ef8">🟣 Discord</span>
-          <span class="wb-tag" style="background:rgba(255,107,107,0.1);border-color:rgba(255,107,107,0.3);color:#ff6b6b">🎬 Medien</span>
-          <span class="wb-tag" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#f59e0b">📝 Text</span>
-          <span class="wb-tag" style="background:rgba(6,182,212,0.1);border-color:rgba(6,182,212,0.3);color:#06b6d4">🔧 Utilities</span>
-        </div>
-      </div>
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-family:var(--mono);margin-bottom:12px">// Alle Tools</div>
-      <div class="home-grid" id="home-grid">
-        <!-- filled by JS -->
-      </div>
-    </div>
-
-    <!-- ── MC COLOR ── -->
-    <div class="page" id="page-mc-color">
-      <div class="card">
-        <div class="card-title">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0.5" y="0.5" width="5.5" height="5.5" rx="1" fill="#56c248"/><rect x="8" y="0.5" width="5.5" height="5.5" rx="1" fill="#a16207"/><rect x="0.5" y="8" width="5.5" height="5.5" rx="1" fill="#60a5fa"/><rect x="8" y="8" width="5.5" height="5.5" rx="1" fill="#f87171"/></svg>
-          Minecraft Farb-Codes
-        </div>
-        <div class="field"><label>Text mit §-Codes eingeben</label><input type="text" id="mc-input" placeholder="§aHello §bWorld§r!" style="font-family:var(--mono)"></div>
-        <div id="mc-preview" style="font-size:15px;font-weight:600;padding:12px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid var(--border);min-height:40px;font-family:'Courier New',monospace;letter-spacing:0.5px">Vorschau erscheint hier…</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Farb-Referenz — klicken zum Einfügen</div>
-        <div class="mc-color-grid" id="mc-colors"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Format-Codes</div>
-        <div class="row4">
-          <div class="btn btn-ghost btn-full" onclick="insertMC('§l')" style="font-size:12px;font-weight:900"><span>§l Bold</span></div>
-          <div class="btn btn-ghost btn-full" onclick="insertMC('§o')" style="font-size:12px;font-style:italic"><span>§o Italic</span></div>
-          <div class="btn btn-ghost btn-full" onclick="insertMC('§n')" style="font-size:12px;text-decoration:underline"><span>§n Underline</span></div>
-          <div class="btn btn-ghost btn-full" onclick="insertMC('§r')" style="font-size:12px"><span>§r Reset</span></div>
-        </div>
-        <div class="btn-row" style="margin-top:12px">
-          <button class="btn btn-ghost" onclick="copy($('mc-input').value)"><span>📋 Code kopieren</span></button>
+<!-- APP -->
+<section id="app" class="app-section">
+  <div class="app-wrap">
+    <div class="app-head">
+      <div class="app-head-left">
+        <span class="app-head-icon" id="a-icon">🎬</span>
+        <div>
+          <div class="app-head-name" id="a-name">MP4 → GIF Converter</div>
+          <div class="app-head-desc" id="a-desc">Keine Datei verlässt deinen Browser.</div>
         </div>
       </div>
     </div>
 
-    <!-- ── MC ENCHANT ── -->
-    <div class="page" id="page-mc-enchant">
-      <div class="card">
-        <div class="card-title">✨ Enchantment-Table Text</div>
-        <div class="field"><label>Normaler Text</label><input type="text" id="ench-in" placeholder="Your epic item name…"></div>
-        <div class="row2">
-          <div class="field"><label>Modus</label>
-            <select id="ench-mode">
-              <option value="full">Vollständig verschlüsselt</option>
-              <option value="partial">Teilweise (50%)</option>
-              <option value="styled">Grün + verschlüsselt</option>
-            </select>
-          </div>
-          <div class="field"><label>Intensität</label>
-            <select id="ench-intensity">
-              <option value="low">Gering</option>
-              <option value="med" selected>Mittel</option>
-              <option value="high">Hoch</option>
-            </select>
-          </div>
-        </div>
-        <button class="btn btn-mc btn-full" onclick="genEnchant()"><span>✨ Generieren</span></button>
-        <div class="ench-out" id="ench-out">ꦪꫀꦒꦁ ꦏꦺꦴꦏꦏꦤꦿ…</div>
-        <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-ghost" onclick="copy($('ench-out').textContent)"><span>📋 Kopieren</span></button>
-          <button class="btn btn-ghost" onclick="genEnchant()"><span>🔁 Neu würfeln</span></button>
-        </div>
+    <!-- GIF -->
+    <div class="app-body active" id="tool-gif">
+      <div class="dz" id="gif-dz"><input type="file" id="gif-in" accept="video/*"><span class="dz-icon">🎬</span><div class="dz-title">Video hier ablegen</div><div class="dz-sub">MP4 · WebM · MOV</div></div>
+      <div id="gif-prev"><video id="gif-vid" controls muted playsinline></video></div>
+      <div id="gif-fn" style="font-family:var(--mono);font-size:11px;color:var(--green);margin:6px 0;min-height:14px"></div>
+      <div class="row3">
+        <div class="field"><label>Breite (px)</label><input type="number" id="gif-w" value="480" min="64" max="1280"></div>
+        <div class="field"><label>FPS</label><input type="number" id="gif-fps" value="12" min="1" max="30"></div>
+        <div class="field"><label>Qualität (1–20)</label><input type="number" id="gif-q" value="8" min="1" max="20"></div>
       </div>
-      <div class="card">
-        <div class="card-title">Standard Galactic Alphabet</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <!-- letters injected by JS -->
-        </div>
+      <div class="row2">
+        <div class="field"><label>Start (s)</label><input type="number" id="gif-s" value="0" min="0" step="0.1"></div>
+        <div class="field"><label>Ende (0 = Ende)</label><input type="number" id="gif-e" value="0" min="0" step="0.1"></div>
       </div>
+      <button class="btn btn-w btn-full" id="gif-btn" disabled>GIF ERSTELLEN ⚡</button>
+      <div class="prog-wrap" id="gif-prog"><div class="prog-bg"><div class="prog-fill" id="gif-fill"></div></div><div class="prog-lbl" id="gif-lbl">Verarbeite…</div></div>
+      <div class="res-box" id="gif-res"><div class="pills" id="gif-pills"></div><img id="gif-out" class="output-img"><div class="btn-row" style="margin-top:14px"><button class="btn btn-g" id="gif-rst">↩ RESET</button><button class="btn btn-w" id="gif-dl">⬇ DOWNLOAD</button></div></div>
     </div>
 
-    <!-- ── MC SERVER STATUS ── -->
-    <div class="page" id="page-mc-server">
-      <div class="card">
-        <div class="card-title">🖥️ Minecraft Server Status</div>
-        <div class="row2">
-          <div class="field"><label>Server-IP</label><input type="text" id="mc-srv-ip" placeholder="mc.hypixel.net"></div>
-          <div class="field"><label>Port</label><input type="number" id="mc-srv-port" value="25565" min="1" max="65535"></div>
-        </div>
-        <button class="btn btn-mc btn-full" onclick="checkMCServer()"><span>🔍 Status prüfen</span></button>
-        <div id="mc-srv-result" style="display:none;margin-top:14px">
-          <div class="server-status-bar">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="status-dot" id="srv-dot"></div>
-              <div>
-                <div id="srv-name" style="font-size:14px;font-weight:700"></div>
-                <div id="srv-info" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></div>
-              </div>
-            </div>
-            <div id="srv-players" style="text-align:right">
-              <div style="font-size:20px;font-weight:800" id="srv-pcount">—</div>
-              <div style="font-size:10px;color:var(--muted);font-family:var(--mono)">SPIELER</div>
-            </div>
-          </div>
-          <div id="srv-motd-out" style="margin-top:10px;font-family:'Courier New',monospace;font-size:13px;padding:10px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid var(--border);color:#aaa"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">⭐ Bekannte Server</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div class="server-status-bar" style="cursor:pointer" onclick="setServer('mc.hypixel.net','25565')">
-            <div style="display:flex;align-items:center;gap:10px"><div class="status-dot online"></div><div><div style="font-weight:700;font-size:13px">Hypixel</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono)">mc.hypixel.net</div></div></div>
-            <span style="font-size:11px;color:var(--muted)">→ Laden</span>
-          </div>
-          <div class="server-status-bar" style="cursor:pointer" onclick="setServer('play.mineplex.com','25565')">
-            <div style="display:flex;align-items:center;gap:10px"><div class="status-dot online"></div><div><div style="font-weight:700;font-size:13px">Mineplex</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono)">play.mineplex.com</div></div></div>
-            <span style="font-size:11px;color:var(--muted)">→ Laden</span>
-          </div>
-          <div class="server-status-bar" style="cursor:pointer" onclick="setServer('play.cubecraft.net','25565')">
-            <div style="display:flex;align-items:center;gap:10px"><div class="status-dot online"></div><div><div style="font-weight:700;font-size:13px">CubeCraft</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono)">play.cubecraft.net</div></div></div>
-            <span style="font-size:11px;color:var(--muted)">→ Laden</span>
-          </div>
-        </div>
-      </div>
+    <!-- IMG -->
+    <div class="app-body" id="tool-img">
+      <div class="dz" id="img-dz"><input type="file" id="img-in" accept="image/*"><span class="dz-icon">🖼️</span><div class="dz-title">Bild hier ablegen</div><div class="dz-sub">JPEG · PNG · WebP</div></div>
+      <div class="field"><label>Qualität — <span id="img-qv">82</span>%</label><input type="range" id="img-q" min="10" max="100" value="82" style="width:100%;accent-color:#fff;margin-top:7px"></div>
+      <div class="field"><label>Max. Breite (0 = original)</label><input type="number" id="img-mw" value="0" min="0"></div>
+      <button class="btn btn-w btn-full" id="img-btn" disabled>KOMPRIMIEREN ⚡</button>
+      <div class="res-box" id="img-res"><div class="pills" id="img-pills"></div><div class="img-cmp"><div><div class="img-cmp-lbl">Original</div><img id="img-orig"></div><div><div class="img-cmp-lbl">Komprimiert</div><img id="img-comp"></div></div><div class="btn-row" style="margin-top:12px"><button class="btn btn-w" id="img-dl">⬇ DOWNLOAD</button></div></div>
     </div>
 
-    <!-- ── MC MOTD ── -->
-    <div class="page" id="page-mc-motd">
-      <div class="card">
-        <div class="card-title">📝 MOTD Builder</div>
-        <div class="field"><label>Zeile 1</label><input type="text" id="motd1" placeholder="§6§lMein §r§aServer" style="font-family:var(--mono)"></div>
-        <div class="field"><label>Zeile 2</label><input type="text" id="motd2" placeholder="§7Willkommen! §e50 Spieler online" style="font-family:var(--mono)"></div>
-        <button class="btn btn-mc btn-full" onclick="previewMOTD()"><span>👁️ Vorschau</span></button>
+    <!-- QR -->
+    <div class="app-body" id="tool-qr">
+      <div class="field"><label>URL oder Text</label><input type="text" id="qr-txt" placeholder="https://beispiel.de"></div>
+      <div class="row2">
+        <div class="field"><label>Größe (px)</label><input type="number" id="qr-sz" value="256" min="64" max="1024" step="32"></div>
+        <div class="field"><label>Fehlerkorrektur</label><select id="qr-ec"><option value="L">L — 7%</option><option value="M" selected>M — 15%</option><option value="Q">Q — 25%</option><option value="H">H — 30%</option></select></div>
       </div>
-      <div class="card" id="motd-preview-card" style="display:none">
-        <div class="card-title">Server-Vorschau</div>
-        <div style="background:#1a1a2e;border-radius:8px;padding:14px;border:1px solid #333;display:flex;align-items:center;gap:14px">
-          <div style="width:48px;height:48px;background:linear-gradient(135deg,#56c248,#2d7a20);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px">🌍</div>
-          <div style="flex:1">
-            <div id="motd-line1" style="font-family:'Courier New',monospace;font-size:13px;line-height:1.5"></div>
-            <div id="motd-line2" style="font-family:'Courier New',monospace;font-size:13px;line-height:1.5"></div>
-          </div>
-          <div style="text-align:right"><div style="font-size:13px;color:#4ade80">1/20</div><div style="font-size:10px;color:#666">Spieler</div></div>
-        </div>
-        <div class="btn-row" style="margin-top:12px">
-          <button class="btn btn-ghost" onclick="copy($('motd1').value+'\\n'+$('motd2').value)"><span>📋 MOTD kopieren</span></button>
-        </div>
+      <div class="row2">
+        <div class="field"><label>Farbe</label><input type="color" id="qr-fg" value="#ffffff" style="width:100%;height:42px;border-radius:10px;border:1px solid rgba(255,255,255,0.09);background:transparent;cursor:pointer;padding:2px"></div>
+        <div class="field"><label>Hintergrund</label><input type="color" id="qr-bg" value="#000000" style="width:100%;height:42px;border-radius:10px;border:1px solid rgba(255,255,255,0.09);background:transparent;cursor:pointer;padding:2px"></div>
       </div>
+      <button class="btn btn-w btn-full" id="qr-btn">QR ERSTELLEN ⚡</button>
+      <div id="qr-out"><div id="qr-wrap"></div><div class="btn-row" style="justify-content:center;margin-top:12px"><button class="btn btn-w" id="qr-dl">⬇ PNG</button><button class="btn btn-g" id="qr-cp">📋 KOPIEREN</button></div></div>
     </div>
 
-    <!-- ── DC EMBED ── -->
-    <div class="page" id="page-dc-embed">
-      <div class="card">
-        <div class="card-title">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0.5" y="0.5" width="13" height="13" rx="2.5" stroke="#5865f2" stroke-width="1.3"/></svg>
-          Discord Embed Builder
-        </div>
-        <div class="row2">
-          <div class="field"><label>Titel</label><input type="text" id="em-title" placeholder="Mein Embed-Titel" oninput="updateEmbed()"></div>
-          <div class="field"><label>Farbe</label><input type="color" id="em-color" value="#5865f2" oninput="updateEmbed()" style="width:100%;height:40px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;padding:2px"></div>
-        </div>
-        <div class="field"><label>Beschreibung</label><textarea id="em-desc" placeholder="Beschreibung des Embeds… Markdown wird unterstützt." rows="3" oninput="updateEmbed()"></textarea></div>
-        <div class="row2">
-          <div class="field"><label>Autor</label><input type="text" id="em-author" placeholder="Bot Name" oninput="updateEmbed()"></div>
-          <div class="field"><label>Footer</label><input type="text" id="em-footer" placeholder="Footer Text" oninput="updateEmbed()"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Thumbnail URL</label><input type="text" id="em-thumb" placeholder="https://…" oninput="updateEmbed()"></div>
-          <div class="field"><label>Image URL</label><input type="text" id="em-img" placeholder="https://…" oninput="updateEmbed()"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Vorschau</div>
-        <div class="dc-msg-preview">
-          <div class="dc-msg-header">
-            <div class="dc-msg-avatar">🤖</div>
-            <div>
-              <span class="dc-msg-name">MyBot <span style="font-size:10px;background:var(--dc);color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;vertical-align:middle">BOT</span></span>
-              <span class="dc-msg-time" style="margin-left:8px">Heute um 20:00</span>
-            </div>
-          </div>
-          <div style="margin-left:46px">
-            <div class="dc-embed" id="embed-preview">
-              <div class="dc-embed-author" id="ep-author"></div>
-              <div class="dc-embed-title" id="ep-title">Embed Titel</div>
-              <div class="dc-embed-desc" id="ep-desc">Beschreibung…</div>
-              <img id="ep-img" src="" style="display:none;max-width:100%;border-radius:6px;margin-top:10px">
-              <div class="dc-embed-footer" id="ep-footer-wrap"><span id="ep-footer">Footer Text</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">JSON Export</div>
-        <div class="out-box" id="em-json" style="font-size:11px"></div>
-        <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-dc" onclick="copy($('em-json').textContent)"><span>📋 JSON kopieren</span></button>
-        </div>
-      </div>
+    <!-- BASE64 -->
+    <div class="app-body" id="tool-b64">
+      <div class="field"><label>Eingabe</label><textarea id="b64-in" placeholder="Text oder Base64 eingeben…" rows="5"></textarea></div>
+      <div class="btn-row"><button class="btn btn-w" id="b64-enc">ENCODE →</button><button class="btn btn-g" id="b64-dec">← DECODE</button><button class="btn btn-g" id="b64-clr">LEEREN</button></div>
+      <div class="res-box" id="b64-res"><div style="font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--mono);margin-bottom:7px" id="b64-lbl">Ergebnis</div><div class="output-box" id="b64-out"></div><div class="btn-row" style="margin-top:10px"><button class="btn btn-g" id="b64-cp">📋 KOPIEREN</button><button class="btn btn-g" id="b64-sw">⇄ ALS EINGABE</button></div></div>
     </div>
 
-    <!-- ── DC TIMESTAMP ── -->
-    <div class="page" id="page-dc-timestamp">
-      <div class="card">
-        <div class="card-title">⏰ Discord Timestamp Generator</div>
-        <div class="row2">
-          <div class="field"><label>Datum</label><input type="date" id="ts-date"></div>
-          <div class="field"><label>Zeit</label><input type="time" id="ts-time" value="12:00"></div>
-        </div>
-        <div class="field"><label>Format</label>
-          <select id="ts-fmt">
-            <option value="t">Kurze Zeit (16:20)</option>
-            <option value="T">Lange Zeit (16:20:30)</option>
-            <option value="d">Kurzes Datum (20.04.2021)</option>
-            <option value="D">Langes Datum (20. April 2021)</option>
-            <option value="f" selected>Datum & Zeit (20. April 2021 16:20)</option>
-            <option value="F">Vollständig (Dienstag, 20. April 2021 16:20)</option>
-            <option value="R">Relativ (vor 2 Monaten)</option>
-          </select>
-        </div>
-        <button class="btn btn-dc btn-full" onclick="genTimestamp()"><span>⏰ Generieren</span></button>
-        <div class="res-card" id="ts-res">
-          <div class="pills" id="ts-pills"></div>
-          <div class="out-box" id="ts-out" style="font-size:15px;color:#fff"></div>
-          <div class="btn-row" style="margin-top:10px">
-            <button class="btn btn-ghost" onclick="copy($('ts-out').textContent)"><span>📋 Kopieren</span></button>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Alle Formate auf einmal</div>
-        <div id="ts-all" style="display:flex;flex-direction:column;gap:7px"></div>
-        <button class="btn btn-dc btn-full" style="margin-top:12px" onclick="genAllTS()"><span>📋 Alle generieren</span></button>
-      </div>
+    <!-- JSON -->
+    <div class="app-body" id="tool-json">
+      <div class="field"><label>JSON</label><textarea id="json-in" placeholder='{"name":"Max","alter":25}' rows="7"></textarea></div>
+      <div class="btn-row"><button class="btn btn-w" id="json-fmt">✨ FORMATIEREN</button><button class="btn btn-g" id="json-min">⬤ MINIMIEREN</button><button class="btn btn-g" id="json-clr">LEEREN</button></div>
+      <div id="json-err" style="display:none;margin-top:10px;font-size:12px;color:var(--red);font-family:var(--mono)"></div>
+      <div class="res-box" id="json-res"><div class="pills" id="json-pills"></div><div class="output-box" id="json-out"></div><div class="btn-row" style="margin-top:10px"><button class="btn btn-g" id="json-cp">📋 KOPIEREN</button></div></div>
     </div>
 
-    <!-- ── DC FORMAT ── -->
-    <div class="page" id="page-dc-format">
-      <div class="card">
-        <div class="card-title">📝 Discord Markdown Formatter</div>
-        <div class="field"><label>Text eingeben</label><textarea id="dc-txt" placeholder="Dein Text hier…" rows="5"></textarea></div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('**','**')"><span><b>Fett</b></span></button>
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('*','*')"><span><i>Kursiv</i></span></button>
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('__','__')"><span style="text-decoration:underline">Unterstrichen</span></button>
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('~~','~~')"><span style="text-decoration:line-through">Strikethrough</span></button>
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('`','`')"><span style="font-family:var(--mono)">Code</span></button>
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('```\n','\n```')"><span>Block Code</span></button>
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('> ','')"><span>Zitat</span></button>
-          <button class="btn btn-ghost btn-full" onclick="fmtDC('||','||')"><span>|| Spoiler ||</span></button>
-        </div>
-        <div class="btn-row" style="margin-top:12px">
-          <button class="btn btn-dc" onclick="copy($('dc-txt').value)"><span>📋 Kopieren</span></button>
-          <button class="btn btn-ghost" onclick="$('dc-txt').value=''"><span>Leeren</span></button>
-        </div>
+    <!-- WORD COUNT -->
+    <div class="app-body" id="tool-wc">
+      <div class="field"><label>Text</label><textarea id="wc-in" placeholder="Füge deinen Text hier ein…" rows="8" style="min-height:160px"></textarea></div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val" id="wc-c">0</div><div class="stat-lbl">Zeichen</div></div>
+        <div class="stat-box"><div class="stat-val" id="wc-w">0</div><div class="stat-lbl">Wörter</div></div>
+        <div class="stat-box"><div class="stat-val" id="wc-s">0</div><div class="stat-lbl">Sätze</div></div>
+        <div class="stat-box"><div class="stat-val" id="wc-p">0</div><div class="stat-lbl">Absätze</div></div>
+        <div class="stat-box"><div class="stat-val" id="wc-r">—</div><div class="stat-lbl">Lesezeit</div></div>
+        <div class="stat-box"><div class="stat-val" id="wc-u">0</div><div class="stat-lbl">Einzigartig</div></div>
       </div>
-      <div class="card">
-        <div class="card-title">Vorschau (annähernd)</div>
-        <div id="dc-preview" style="font-size:14px;line-height:1.7;color:rgba(255,255,255,0.75);min-height:60px;background:rgba(0,0,0,0.2);border-radius:8px;padding:12px;border:1px solid var(--border)">Tippe oben…</div>
-      </div>
+      <div id="wc-top" style="display:none"><div style="font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px">TOP WÖRTER</div><div id="wc-top-w" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
     </div>
 
-    <!-- ── DC ANSI ── -->
-    <div class="page" id="page-dc-colors">
-      <div class="card">
-        <div class="card-title">🎨 Discord ANSI Farben</div>
-        <div class="field"><label>Text</label><input type="text" id="ansi-txt" placeholder="Mein farbiger Text" value="Hallo Discord!"></div>
-        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px">Textfarbe</div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px" id="ansi-fg"></div>
-        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px">Hintergrundfarbe</div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px" id="ansi-bg"></div>
-        <div class="row2">
-          <div class="btn btn-ghost btn-full" onclick="toggleAnsi('bold')" id="ansi-bold"><span>Bold</span></div>
-          <div class="btn btn-ghost btn-full" onclick="toggleAnsi('under')" id="ansi-under"><span>Underline</span></div>
-        </div>
-        <button class="btn btn-dc btn-full" style="margin-top:10px" onclick="genANSI()"><span>✨ Code generieren</span></button>
-        <div class="out-box" id="ansi-out" style="margin-top:12px;font-size:13px;color:#fff"></div>
-        <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-ghost" onclick="copy($('ansi-out').textContent)"><span>📋 Kopieren</span></button>
-        </div>
+    <!-- COLOR -->
+    <div class="app-body" id="tool-color">
+      <div class="color-prev" id="cprev"></div>
+      <div class="row3">
+        <div class="field"><label>HEX</label><input type="text" id="c-hex" placeholder="#bf5af2" maxlength="7"></div>
+        <div class="field"><label>RGB</label><input type="text" id="c-rgb" placeholder="191, 90, 242"></div>
+        <div class="field"><label>HSL</label><input type="text" id="c-hsl" placeholder="278, 86%, 65%"></div>
       </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px">SCHNELLPALETTE</div>
+      <div class="swatch-row" id="cswatches"></div>
+      <div style="margin-top:18px;font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px">CSS OUTPUT</div>
+      <div class="output-box" id="ccss"></div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn btn-g" id="ccp">📋 CSS KOPIEREN</button></div>
     </div>
 
-    <!-- ── GIF ── -->
-    <div class="page" id="page-gif">
-      <div class="card">
-        <div class="dz" id="gif-dz"><input type="file" id="gif-in" accept="video/*"><span class="dz-icon">🎬</span><div class="dz-title">Video hier ablegen</div><div class="dz-sub">MP4 · WebM · MOV</div></div>
-        <div id="gif-prev"><video id="gif-vid" controls muted playsinline></video></div>
-        <div id="gif-fn" style="font-family:var(--mono);font-size:11px;color:#56c248;margin:6px 0;min-height:14px"></div>
+    <!-- PASSWORD -->
+    <div class="app-body" id="tool-pass">
+      <div class="field"><label>Länge — <span id="pl-val">20</span> Zeichen</label><input type="range" id="p-len" min="6" max="128" value="20" style="width:100%;accent-color:#fff;margin-top:7px"></div>
+      <div class="pw-opts">
+        <label class="pw-opt"><input type="checkbox" id="p-up" checked> Großbuchstaben</label>
+        <label class="pw-opt"><input type="checkbox" id="p-lo" checked> Kleinbuchstaben</label>
+        <label class="pw-opt"><input type="checkbox" id="p-nm" checked> Zahlen (0-9)</label>
+        <label class="pw-opt"><input type="checkbox" id="p-sy"> Sonderzeichen</label>
+        <label class="pw-opt"><input type="checkbox" id="p-na"> Ähnliche vermeiden</label>
       </div>
-      <div class="card">
-        <div class="row3">
-          <div class="field"><label>Breite (px)</label><input type="number" id="gif-w" value="480" min="64" max="1280"></div>
-          <div class="field"><label>FPS</label><input type="number" id="gif-fps" value="12" min="1" max="30"></div>
-          <div class="field"><label>Qualität (1–20)</label><input type="number" id="gif-q" value="8" min="1" max="20"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Start (s)</label><input type="number" id="gif-s" value="0" min="0" step="0.1"></div>
-          <div class="field"><label>Ende (0=Ende)</label><input type="number" id="gif-e" value="0" min="0" step="0.1"></div>
-        </div>
-        <button class="btn btn-white btn-full" id="gif-btn" disabled><span>GIF ERSTELLEN ⚡</span></button>
-        <div class="prog" id="gif-prog"><div class="prog-bg"><div class="prog-fill" id="gif-fill"></div></div><div class="prog-lbl" id="gif-lbl"></div></div>
-      </div>
-      <div class="res-card" id="gif-res">
-        <div class="pills" id="gif-pills"></div>
-        <img id="gif-out" class="out-img">
-        <div class="btn-row" style="margin-top:12px">
-          <button class="btn btn-ghost" id="gif-rst"><span>↩ Reset</span></button>
-          <button class="btn btn-white" id="gif-dl"><span>⬇ Download</span></button>
-        </div>
-      </div>
+      <div class="field"><label>Anzahl</label><input type="number" id="p-cnt" value="5" min="1" max="50"></div>
+      <button class="btn btn-w btn-full" id="p-gen">🔐 GENERIEREN</button>
+      <div class="res-box" id="p-res"><div id="p-list"></div></div>
     </div>
 
-    <!-- ── IMG COMPRESS ── -->
-    <div class="page" id="page-img-compress">
-      <div class="card">
-        <div class="dz" id="img-dz"><input type="file" id="img-in" accept="image/*"><span class="dz-icon">🖼️</span><div class="dz-title">Bild hier ablegen</div><div class="dz-sub">JPEG · PNG · WebP</div></div>
-        <div class="field"><label>Qualität — <span id="img-qv">82</span>%</label><input type="range" id="img-q" min="10" max="100" value="82" style="width:100%;accent-color:#fff;margin-top:7px"></div>
-        <div class="field"><label>Max. Breite (0=original)</label><input type="number" id="img-mw" value="0" min="0"></div>
-        <button class="btn btn-white btn-full" id="img-btn" disabled><span>KOMPRIMIEREN ⚡</span></button>
-      </div>
-      <div class="res-card" id="img-res">
-        <div class="pills" id="img-pills"></div>
-        <div class="img-cmp"><div><div class="img-cmp-lbl">Original</div><img id="img-orig"></div><div><div class="img-cmp-lbl">Komprimiert</div><img id="img-comp"></div></div>
-        <div class="btn-row" style="margin-top:10px"><button class="btn btn-white" id="img-dl"><span>⬇ Download</span></button></div>
-      </div>
-    </div>
+  </div><!-- app-wrap -->
+</section>
 
-    <!-- ── QR ── -->
-    <div class="page" id="page-qr">
-      <div class="card">
-        <div class="field"><label>URL oder Text</label><input type="text" id="qr-txt" placeholder="https://beispiel.de"></div>
-        <div class="row2">
-          <div class="field"><label>Größe (px)</label><input type="number" id="qr-sz" value="256" min="64" max="1024" step="32"></div>
-          <div class="field"><label>Fehlerkorrektur</label><select id="qr-ec"><option value="L">L — 7%</option><option value="M" selected>M — 15%</option><option value="Q">Q — 25%</option><option value="H">H — 30%</option></select></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Vordergrund</label><input type="color" id="qr-fg" value="#ffffff" style="width:100%;height:40px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;padding:2px"></div>
-          <div class="field"><label>Hintergrund</label><input type="color" id="qr-bg" value="#000000" style="width:100%;height:40px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;padding:2px"></div>
-        </div>
-        <button class="btn btn-white btn-full" id="qr-btn"><span>QR ERSTELLEN ⚡</span></button>
-        <div id="qr-out"><div id="qr-wrap"></div><div class="btn-row" style="justify-content:center;margin-top:12px"><button class="btn btn-white" id="qr-dl"><span>⬇ PNG</span></button><button class="btn btn-ghost" id="qr-cp"><span>📋 Kopieren</span></button></div></div>
-      </div>
-    </div>
-
-    <!-- ── BASE64 ── -->
-    <div class="page" id="page-b64">
-      <div class="card">
-        <div class="field"><label>Eingabe</label><textarea id="b64-in" placeholder="Text oder Base64…" rows="5"></textarea></div>
-        <div class="btn-row">
-          <button class="btn btn-white" onclick="b64op(true)"><span>ENCODE →</span></button>
-          <button class="btn btn-ghost" onclick="b64op(false)"><span>← DECODE</span></button>
-          <button class="btn btn-ghost" onclick="$('b64-in').value='';$('b64-res').style.display='none'"><span>Leeren</span></button>
-        </div>
-      </div>
-      <div class="res-card" id="b64-res">
-        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:7px" id="b64-lbl">Ergebnis</div>
-        <div class="out-box" id="b64-out"></div>
-        <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-ghost" id="b64-cp"><span>📋 Kopieren</span></button>
-          <button class="btn btn-ghost" id="b64-sw"><span>⇄ Als Eingabe</span></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── JSON ── -->
-    <div class="page" id="page-json">
-      <div class="card">
-        <div class="field"><label>JSON</label><textarea id="json-in" placeholder='{"name":"Max"}' rows="7"></textarea></div>
-        <div class="btn-row">
-          <button class="btn btn-white" onclick="doJSON(false)"><span>✨ Formatieren</span></button>
-          <button class="btn btn-ghost" onclick="doJSON(true)"><span>⬤ Minimieren</span></button>
-          <button class="btn btn-ghost" onclick="$('json-in').value='';$('json-res').style.display='none';$('json-err').style.display='none'"><span>Leeren</span></button>
-        </div>
-        <div id="json-err" style="display:none;margin-top:10px;font-size:12px;color:#ff453a;font-family:var(--mono)"></div>
-      </div>
-      <div class="res-card" id="json-res">
-        <div class="pills" id="json-pills"></div>
-        <div class="out-box" id="json-out"></div>
-        <div class="btn-row" style="margin-top:10px"><button class="btn btn-ghost" id="json-cp"><span>📋 Kopieren</span></button></div>
-      </div>
-    </div>
-
-    <!-- ── WORD COUNT ── -->
-    <div class="page" id="page-wc">
-      <div class="card">
-        <div class="field"><label>Text</label><textarea id="wc-in" placeholder="Füge deinen Text hier ein…" rows="8" style="min-height:160px"></textarea></div>
-      </div>
-      <div class="card">
-        <div class="stat-grid">
-          <div class="stat-box"><div class="stat-val" id="wc-c">0</div><div class="stat-lbl">Zeichen</div></div>
-          <div class="stat-box"><div class="stat-val" id="wc-w">0</div><div class="stat-lbl">Wörter</div></div>
-          <div class="stat-box"><div class="stat-val" id="wc-s">0</div><div class="stat-lbl">Sätze</div></div>
-          <div class="stat-box"><div class="stat-val" id="wc-p">0</div><div class="stat-lbl">Absätze</div></div>
-          <div class="stat-box"><div class="stat-val" id="wc-r">—</div><div class="stat-lbl">Lesezeit</div></div>
-          <div class="stat-box"><div class="stat-val" id="wc-u">0</div><div class="stat-lbl">Einzigartig</div></div>
-        </div>
-        <div id="wc-top" style="display:none">
-          <div style="font-size:11px;color:var(--muted);font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">TOP WÖRTER</div>
-          <div id="wc-tw" style="display:flex;flex-wrap:wrap;gap:5px"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── REGEX ── -->
-    <div class="page" id="page-regex">
-      <div class="card">
-        <div class="field"><label>Regex Pattern</label><input type="text" id="rx-pat" placeholder="(\d+)" style="font-family:var(--mono)"></div>
-        <div class="row2">
-          <div class="field"><label>Flags</label><input type="text" id="rx-flags" value="g" maxlength="6" style="font-family:var(--mono)"></div>
-          <div class="field"><label>Test-String</label></div>
-        </div>
-        <div class="field"><label>Test-String</label><textarea id="rx-str" placeholder="Hier deinen Test-Text eingeben…" rows="4"></textarea></div>
-        <button class="btn btn-white btn-full" onclick="testRegex()"><span>🔍 Testen</span></button>
-      </div>
-      <div class="res-card" id="rx-res">
-        <div class="pills" id="rx-pills"></div>
-        <div class="out-box" id="rx-out" style="font-size:12px"></div>
-      </div>
-    </div>
-
-    <!-- ── COLOR ── -->
-    <div class="page" id="page-color">
-      <div class="card">
-        <div class="color-prev" id="cprev"></div>
-        <div class="row3">
-          <div class="field"><label>HEX</label><input type="text" id="c-hex" placeholder="#bf5af2" maxlength="7"></div>
-          <div class="field"><label>RGB</label><input type="text" id="c-rgb" placeholder="191, 90, 242"></div>
-          <div class="field"><label>HSL</label><input type="text" id="c-hsl" placeholder="278, 86%, 65%"></div>
-        </div>
-        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Schnellpalette</div>
-        <div class="swatch-row" id="cswatches"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">CSS Output</div>
-        <div class="out-box" id="ccss"></div>
-        <div class="btn-row" style="margin-top:10px"><button class="btn btn-ghost" id="ccp"><span>📋 CSS kopieren</span></button></div>
-      </div>
-    </div>
-
-    <!-- ── PASSWORD ── -->
-    <div class="page" id="page-pass">
-      <div class="card">
-        <div class="field"><label>Länge — <span id="pl-val">20</span> Zeichen</label><input type="range" id="p-len" min="6" max="128" value="20" style="width:100%;accent-color:#fff;margin-top:7px"></div>
-        <div class="pw-opts">
-          <label class="pw-opt"><input type="checkbox" id="p-up" checked> Großbuchstaben A-Z</label>
-          <label class="pw-opt"><input type="checkbox" id="p-lo" checked> Kleinbuchstaben a-z</label>
-          <label class="pw-opt"><input type="checkbox" id="p-nm" checked> Zahlen 0-9</label>
-          <label class="pw-opt"><input type="checkbox" id="p-sy"> Sonderzeichen !@#…</label>
-          <label class="pw-opt"><input type="checkbox" id="p-na"> Ähnliche vermeiden</label>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Anzahl</label><input type="number" id="p-cnt" value="5" min="1" max="50"></div>
-        </div>
-        <button class="btn btn-white btn-full" id="p-gen"><span>🔐 GENERIEREN</span></button>
-      </div>
-      <div class="res-card" id="p-res"><div id="p-list"></div></div>
-    </div>
-
-    <!-- ── HASH ── -->
-    <div class="page" id="page-hash">
-      <div class="card">
-        <div class="field"><label>Text eingeben</label><textarea id="hash-in" placeholder="Text zum Hashen…" rows="4"></textarea></div>
-        <button class="btn btn-white btn-full" onclick="genHash()"><span>🔐 HASHEN</span></button>
-      </div>
-      <div class="res-card" id="hash-res">
-        <div id="hash-out"></div>
-      </div>
-    </div>
-
-    <!-- ── UUID ── -->
-    <div class="page" id="page-uuid">
-      <div class="card">
-        <div class="field"><label>Anzahl</label><input type="number" id="uuid-cnt" value="5" min="1" max="50"></div>
-        <div class="field"><label>Version</label>
-          <select id="uuid-ver"><option value="4">Version 4 (Random)</option><option value="nil">Nil UUID</option></select>
-        </div>
-        <button class="btn btn-white btn-full" onclick="genUUID()"><span>🆔 GENERIEREN</span></button>
-      </div>
-      <div class="res-card" id="uuid-res">
-        <div id="uuid-list"></div>
-        <div class="btn-row" style="margin-top:10px"><button class="btn btn-ghost" onclick="copy(Array.from($('uuid-list').querySelectorAll('.out-box')).map(e=>e.textContent).join('\n'))"><span>📋 Alle kopieren</span></button></div>
-      </div>
-    </div>
-
-  </div><!-- content -->
-</div><!-- main -->
+<footer>
+  <p>⚡ <span>TOOLBOX</span> — Alles lokal. Kein Server. Kein Tracking.</p>
+  <p style="font-size:12px;font-family:var(--mono);color:rgba(255,255,255,0.2)">100% im Browser</p>
+</footer>
 
 <div id="toast"></div>
 
-<style>
-.page{display:none}
-.page.active{display:block;animation:fadein 0.18s ease}
-@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-</style>
-
 <script>
-// ── Helpers ─────────────────────────────────────────────────────────
 const $=id=>document.getElementById(id);
 let toastT;
 function toast(m,t='ok'){const el=$('toast');el.textContent=m;el.className='show '+t;clearTimeout(toastT);toastT=setTimeout(()=>el.className='',2400)}
-function copy(t){navigator.clipboard.writeText(t).then(()=>toast('Kopiert!')).catch(()=>toast('Fehler','err'))}
+function copy(t){navigator.clipboard.writeText(t).then(()=>toast('Kopiert!'))}
 function fmtB(b){return b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(2)+'MB'}
 function setupDZ(dId,iId,cb){
   const dz=$(dId),inp=$(iId);
@@ -1029,366 +756,147 @@ function setupDZ(dId,iId,cb){
   inp.addEventListener('change',e=>{if(e.target.files[0])cb(e.target.files[0])});
 }
 
-// ── Navigation ───────────────────────────────────────────────────────
-const toolMeta={
-  home:{icon:'🏠',name:'Übersicht',cat:'Allgemein',catColor:'rgba(6,182,212,0.12)',catText:'#06b6d4'},
-  'mc-color':{icon:'🟩',name:'MC Farb-Codes',cat:'Minecraft',catColor:'rgba(86,194,72,0.12)',catText:'#56c248'},
-  'mc-enchant':{icon:'✨',name:'Enchant Text',cat:'Minecraft',catColor:'rgba(86,194,72,0.12)',catText:'#56c248'},
-  'mc-server':{icon:'🖥️',name:'Server Status',cat:'Minecraft',catColor:'rgba(86,194,72,0.12)',catText:'#56c248'},
-  'mc-motd':{icon:'📝',name:'MOTD Builder',cat:'Minecraft',catColor:'rgba(86,194,72,0.12)',catText:'#56c248'},
-  'dc-embed':{icon:'🟣',name:'Embed Builder',cat:'Discord',catColor:'rgba(88,101,242,0.12)',catText:'#7b8ef8'},
-  'dc-timestamp':{icon:'⏰',name:'Timestamp Gen',cat:'Discord',catColor:'rgba(88,101,242,0.12)',catText:'#7b8ef8'},
-  'dc-format':{icon:'📝',name:'Markdown Format',cat:'Discord',catColor:'rgba(88,101,242,0.12)',catText:'#7b8ef8'},
-  'dc-colors':{icon:'🎨',name:'ANSI Farben',cat:'Discord',catColor:'rgba(88,101,242,0.12)',catText:'#7b8ef8'},
-  gif:{icon:'🎬',name:'MP4 → GIF',cat:'Medien',catColor:'rgba(255,107,107,0.12)',catText:'#ff6b6b'},
-  'img-compress':{icon:'🖼️',name:'Bild komprimieren',cat:'Medien',catColor:'rgba(255,107,107,0.12)',catText:'#ff6b6b'},
-  qr:{icon:'⬛',name:'QR Generator',cat:'Medien',catColor:'rgba(255,107,107,0.12)',catText:'#ff6b6b'},
-  b64:{icon:'🔣',name:'Base64 Coder',cat:'Text & Code',catColor:'rgba(245,158,11,0.12)',catText:'#f59e0b'},
-  json:{icon:'{ }',name:'JSON Formatter',cat:'Text & Code',catColor:'rgba(245,158,11,0.12)',catText:'#f59e0b'},
-  wc:{icon:'📊',name:'Text Analyse',cat:'Text & Code',catColor:'rgba(245,158,11,0.12)',catText:'#f59e0b'},
-  regex:{icon:'🔍',name:'Regex Tester',cat:'Text & Code',catColor:'rgba(245,158,11,0.12)',catText:'#f59e0b'},
-  color:{icon:'🎨',name:'Farb Konverter',cat:'Utilities',catColor:'rgba(6,182,212,0.12)',catText:'#06b6d4'},
-  pass:{icon:'🔐',name:'Passwort Gen',cat:'Utilities',catColor:'rgba(6,182,212,0.12)',catText:'#06b6d4'},
-  hash:{icon:'#',name:'Hash Generator',cat:'Utilities',catColor:'rgba(6,182,212,0.12)',catText:'#06b6d4'},
-  uuid:{icon:'🆔',name:'UUID Generator',cat:'Utilities',catColor:'rgba(6,182,212,0.12)',catText:'#06b6d4'},
-};
-
-function navTo(tool){
-  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  const sb=document.querySelector(`.sb-item[data-tool="${tool}"]`);
-  if(sb)sb.classList.add('active');
-  const pg=$('page-'+tool);if(pg)pg.classList.add('active');
-  const m=toolMeta[tool]||{icon:'⚡',name:tool,cat:'',catColor:'rgba(255,255,255,0.1)',catText:'#fff'};
-  $('tb-icon').textContent=m.icon;
-  $('tb-title').textContent=m.name;
-  $('tb-cat').textContent=m.cat;
-  $('tb-cat').style.background=m.catColor;
-  $('tb-cat').style.color=m.catText;
-  $('main').scrollTo({top:0,behavior:'smooth'});
-  if(window.innerWidth<860)$('sidebar').classList.remove('open');
-}
-
-document.querySelectorAll('.sb-item').forEach(el=>{
-  el.addEventListener('click',()=>navTo(el.dataset.tool));
-});
-$('mob-toggle').onclick=()=>$('sidebar').classList.toggle('open');
-
-// Search sidebar
-$('sb-search').addEventListener('input',e=>{
-  const q=e.target.value.toLowerCase();
-  document.querySelectorAll('.sb-item').forEach(el=>{
-    const txt=el.textContent.toLowerCase();
-    el.style.display=(!q||txt.includes(q))?'flex':'none';
+// Tool switch
+const meta={gif:{icon:'🎬',name:'MP4 → GIF Converter',desc:'Keine Datei verlässt deinen Browser.'},img:{icon:'🖼️',name:'Bild komprimieren',desc:'JPEG, PNG, WebP verkleinern.'},qr:{icon:'⬛',name:'QR Code Generator',desc:'URL oder Text als QR-Code.'},b64:{icon:'🔣',name:'Base64 En-/Decoder',desc:'Schnell und lokal.'},json:{icon:'{}',name:'JSON Formatter',desc:'Formatieren, validieren, minimieren.'},wc:{icon:'📊',name:'Text Analyse',desc:'Wörter, Sätze, Lesezeit.'},color:{icon:'🎨',name:'Farb Konverter',desc:'HEX ↔ RGB ↔ HSL.'},pass:{icon:'🔐',name:'Passwort Generator',desc:'Kryptografisch sicher.'}};
+document.querySelectorAll('.tool-card').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const t=c.dataset.tool;
+    document.querySelectorAll('.tool-card').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.app-body').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');$('tool-'+t).classList.add('active');
+    const m=meta[t];$('a-icon').textContent=m.icon;$('a-name').textContent=m.name;$('a-desc').textContent=m.desc;
+    $('app').scrollIntoView({behavior:'smooth'});
   });
 });
 
-// ── HOME GRID ────────────────────────────────────────────────────────
-const homeTools=[
-  {id:'mc-color',icon:'🟩',name:'MC Farb-Codes',desc:'§-Codes mit Vorschau',bg:'rgba(86,194,72,0.12)',border:'rgba(86,194,72,0.2)',badge:null},
-  {id:'mc-enchant',icon:'✨',name:'Enchant Text',desc:'Galactic Alphabet Generator',bg:'rgba(86,194,72,0.10)',border:'rgba(86,194,72,0.2)',badge:'MC'},
-  {id:'mc-server',icon:'🖥️',name:'Server Status',desc:'Minecraft Server prüfen',bg:'rgba(86,194,72,0.10)',border:'rgba(86,194,72,0.2)',badge:null},
-  {id:'mc-motd',icon:'📝',name:'MOTD Builder',desc:'Server-Beschreibung gestalten',bg:'rgba(86,194,72,0.10)',border:'rgba(86,194,72,0.2)',badge:null},
-  {id:'dc-embed',icon:'🟣',name:'Embed Builder',desc:'Discord Embeds erstellen',bg:'rgba(88,101,242,0.12)',border:'rgba(88,101,242,0.25)',badge:'HOT'},
-  {id:'dc-timestamp',icon:'⏰',name:'Timestamps',desc:'Discord Zeitstempel generieren',bg:'rgba(88,101,242,0.10)',border:'rgba(88,101,242,0.2)',badge:'DC'},
-  {id:'dc-format',icon:'📝',name:'Markdown',desc:'Discord Markdown Formatter',bg:'rgba(88,101,242,0.10)',border:'rgba(88,101,242,0.2)',badge:null},
-  {id:'dc-colors',icon:'🎨',name:'ANSI Farben',desc:'Bunte Discord Nachrichten',bg:'rgba(88,101,242,0.10)',border:'rgba(88,101,242,0.2)',badge:'NEU'},
-  {id:'gif',icon:'🎬',name:'MP4 → GIF',desc:'Video in GIF konvertieren',bg:'rgba(255,107,107,0.10)',border:'rgba(255,107,107,0.2)',badge:'HOT'},
-  {id:'img-compress',icon:'🖼️',name:'Bild komprimieren',desc:'Dateigröße reduzieren',bg:'rgba(255,107,107,0.08)',border:'rgba(255,107,107,0.15)',badge:null},
-  {id:'qr',icon:'⬛',name:'QR Generator',desc:'QR-Codes erstellen',bg:'rgba(255,107,107,0.08)',border:'rgba(255,107,107,0.15)',badge:null},
-  {id:'b64',icon:'🔣',name:'Base64',desc:'Text kodieren/dekodieren',bg:'rgba(245,158,11,0.10)',border:'rgba(245,158,11,0.2)',badge:null},
-  {id:'json',icon:'{ }',name:'JSON',desc:'Formatieren & validieren',bg:'rgba(245,158,11,0.08)',border:'rgba(245,158,11,0.15)',badge:null},
-  {id:'wc',icon:'📊',name:'Text Analyse',desc:'Wörter, Sätze, Lesezeit',bg:'rgba(245,158,11,0.08)',border:'rgba(245,158,11,0.15)',badge:null},
-  {id:'regex',icon:'🔍',name:'Regex Tester',desc:'Reguläre Ausdrücke testen',bg:'rgba(245,158,11,0.08)',border:'rgba(245,158,11,0.15)',badge:null},
-  {id:'color',icon:'🎨',name:'Farb Konverter',desc:'HEX ↔ RGB ↔ HSL',bg:'rgba(6,182,212,0.10)',border:'rgba(6,182,212,0.2)',badge:null},
-  {id:'pass',icon:'🔐',name:'Passwort Gen',desc:'Sichere Passwörter erstellen',bg:'rgba(6,182,212,0.10)',border:'rgba(6,182,212,0.2)',badge:null},
-  {id:'hash',icon:'#️⃣',name:'Hash Generator',desc:'MD5, SHA-1, SHA-256',bg:'rgba(6,182,212,0.08)',border:'rgba(6,182,212,0.15)',badge:null},
-  {id:'uuid',icon:'🆔',name:'UUID Generator',desc:'Einzigartige IDs generieren',bg:'rgba(6,182,212,0.08)',border:'rgba(6,182,212,0.15)',badge:'NEU'},
-];
-const grid=$('home-grid');
-homeTools.forEach(t=>{
-  const d=document.createElement('div');
-  d.className='home-card';
-  d.style.cssText=`background:${t.bg};border-color:${t.border}`;
-  d.innerHTML=`${t.badge?`<span class="hc-badge" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7)">${t.badge}</span>`:''}
-    <div class="hc-icon-wrap" style="background:${t.border}"><span style="font-size:22px">${t.icon}</span></div>
-    <div class="hc-name">${t.name}</div>
-    <div class="hc-desc">${t.desc}</div>`;
-  d.addEventListener('click',()=>navTo(t.id));
-  grid.appendChild(d);
-});
-
-// ── MC COLORS ────────────────────────────────────────────────────────
-const mcPalette=[
-  {code:'§0',name:'Black',hex:'#000000'},{code:'§1',name:'Dark Blue',hex:'#0000AA'},
-  {code:'§2',name:'Dark Green',hex:'#00AA00'},{code:'§3',name:'Dark Aqua',hex:'#00AAAA'},
-  {code:'§4',name:'Dark Red',hex:'#AA0000'},{code:'§5',name:'Dark Purple',hex:'#AA00AA'},
-  {code:'§6',name:'Gold',hex:'#FFAA00'},{code:'§7',name:'Gray',hex:'#AAAAAA'},
-  {code:'§8',name:'Dark Gray',hex:'#555555'},{code:'§9',name:'Blue',hex:'#5555FF'},
-  {code:'§a',name:'Green',hex:'#55FF55'},{code:'§b',name:'Aqua',hex:'#55FFFF'},
-  {code:'§c',name:'Red',hex:'#FF5555'},{code:'§d',name:'Light Purple',hex:'#FF55FF'},
-  {code:'§e',name:'Yellow',hex:'#FFFF55'},{code:'§f',name:'White',hex:'#FFFFFF'},
-];
-const mcGrid=$('mc-colors');
-mcPalette.forEach(c=>{
-  const el=document.createElement('div');el.className='mc-color';
-  el.innerHTML=`<div class="mc-color-swatch" style="background:${c.hex}"></div><div class="mc-color-name">${c.code} ${c.name}</div>`;
-  el.addEventListener('click',()=>{
-    const inp=$('mc-input');inp.value+=c.code;previewMC();
-    toast(`${c.code} eingefügt`);
-  });
-  mcGrid.appendChild(el);
-});
-
-function insertMC(code){const inp=$('mc-input');inp.value+=code;previewMC()}
-$('mc-input').addEventListener('input',previewMC);
-function previewMC(){
-  const txt=$('mc-input').value;
-  let html='',i=0;
-  while(i<txt.length){
-    if(txt[i]==='§'&&i+1<txt.length){
-      const code=txt[i+1].toLowerCase();
-      const color=mcPalette.find(c=>c.code==='§'+code);
-      if(color)html+=`<span style="color:${color.hex}">`;
-      else if(code==='r')html+='</span>';
-      i+=2;
-    }else{html+=txt[i]==='<'?'&lt;':txt[i]==='>'?'&gt;':txt[i];i++}
-  }
-  $('mc-preview').innerHTML=html||'Vorschau erscheint hier…';
-}
-
-// ── MC ENCHANT ───────────────────────────────────────────────────────
-const galactic='ᔑꖌᒲꖺᔑ᙭ꓤᔑꖹᔑᙏᔑꖏᔑꪧꖺᔑᒲᒲᔑꖹᔑ'.split('');
-const gmap={a:'ᔑ',b:'ʖ',c:'ᓵ',d:'↸',e:'ᒷ',f:'⌇',g:'⚍',h:'⍑',i:'╎',j:'⋮',k:'ꖌ',l:'ꖎ',m:'ᒲ',n:'リ',o:'𝙹',p:'!¡',q:'ᑑ',r:'∷',s:'ꋊ',t:'ℸ',u:'⚍',v:'⍊',w:'∴',x:'̇/',y:'⚍',z:'ᘢ'};
-const enchChars='ꦪꫀꦒꦁꦏꦺꦴꦏꦏꦤꦿꦪꩤꦮꦸꦔꦺꦴꦤꦺꦕꦤꦶꦩꦧꦶꦁꦏꦺꦴꦩꦩꦻꦁꦗꦶꦮꦏꦩꦠꦫꦗꦺ'.split('');
-
-function genEnchant(){
-  const txt=$('ench-in').value||'Enchanted Item';
-  const mode=$('ench-mode').value;
-  const intensity=$('ench-intensity').value;
-  const rateMap={low:0.3,med:0.6,high:0.9};
-  const rate=rateMap[intensity];
-  let out='';
-  for(const ch of txt){
-    if(ch===' '){out+=' ';continue}
-    const r=Math.random();
-    if(mode==='full'){out+=enchChars[Math.floor(Math.random()*enchChars.length)]}
-    else if(mode==='partial'){out+=r<rate?enchChars[Math.floor(Math.random()*enchChars.length)]:ch}
-    else{out+=(r<rate?enchChars[Math.floor(Math.random()*enchChars.length)]:ch)}
-  }
-  $('ench-out').textContent=mode==='styled'?'§a'+out:out;
-  $('ench-out').style.color=mode==='styled'?'#7ddf64':'#7ddf64';
-}
-genEnchant();
-
-// ── MC SERVER ────────────────────────────────────────────────────────
-function setServer(ip,port){$('mc-srv-ip').value=ip;$('mc-srv-port').value=port}
-async function checkMCServer(){
-  const ip=$('mc-srv-ip').value.trim();
-  if(!ip){toast('IP eingeben','err');return}
-  const port=$('mc-srv-port').value||25565;
-  $('mc-srv-result').style.display='block';
-  $('srv-dot').className='status-dot checking';
-  $('srv-name').textContent='Prüfe…';
-  $('srv-info').textContent=ip+':'+port;
-  $('srv-pcount').textContent='…';
-  try{
-    const r=await fetch(`https://api.mcsrvstat.us/2/${ip}:${port}`);
-    const d=await r.json();
-    if(d.online){
-      $('srv-dot').className='status-dot online';
-      $('srv-name').textContent=d.hostname||ip;
-      $('srv-info').textContent=`${ip}:${port} · v${d.version||'?'}`;
-      $('srv-pcount').textContent=`${d.players?.online||0}/${d.players?.max||0}`;
-      $('srv-motd-out').textContent=d.motd?.clean?.join('\n')||'—';
-      toast('Server online! 🟢');
-    }else{
-      $('srv-dot').className='status-dot offline';
-      $('srv-name').textContent='Offline';$('srv-info').textContent=ip+':'+port;$('srv-pcount').textContent='0';
-      $('srv-motd-out').textContent='Server nicht erreichbar';toast('Offline 🔴','err');
-    }
-  }catch{
-    $('srv-dot').className='status-dot offline';$('srv-name').textContent='Fehler';toast('API Fehler','err');
-  }
-}
-
-// ── MC MOTD ──────────────────────────────────────────────────────────
-function previewMOTD(){
-  function parseMC(txt){
-    let html='';let i=0;
-    while(i<txt.length){
-      if(txt[i]==='§'&&i+1<txt.length){
-        const code=txt[i+1].toLowerCase();
-        const color=mcPalette.find(c=>c.code==='§'+code);
-        if(color)html+=`<span style="color:${color.hex}">`;
-        else if(code==='r')html+='</span>';
-        else if(code==='l')html+='<b>';
-        else if(code==='o')html+='<i>';
-        i+=2;
-      }else{html+=txt[i];i++}
-    }
-    return html;
-  }
-  $('motd-line1').innerHTML=parseMC($('motd1').value)||' ';
-  $('motd-line2').innerHTML=parseMC($('motd2').value)||' ';
-  $('motd-preview-card').style.display='block';
-}
-
-// ── DC EMBED ─────────────────────────────────────────────────────────
-function updateEmbed(){
-  const title=$('em-title').value||'Embed Titel';
-  const desc=$('em-desc').value||'Beschreibung…';
-  const author=$('em-author').value;
-  const footer=$('em-footer').value;
-  const color=$('em-color').value;
-  const imgUrl=$('em-img').value;
-  $('ep-title').textContent=title;$('ep-title').style.color=color;
-  $('ep-desc').textContent=desc;
-  $('ep-author').textContent=author;$('ep-author').style.display=author?'block':'none';
-  $('ep-footer').textContent=footer;$('ep-footer-wrap').style.display=footer?'flex':'none';
-  $('embed-preview').style.borderLeftColor=color;
-  if(imgUrl){$('ep-img').src=imgUrl;$('ep-img').style.display='block'}else{$('ep-img').style.display='none'}
-  const json={embeds:[{title,description:desc,color:parseInt(color.replace('#',''),16),author:author?{name:author}:undefined,footer:footer?{text:footer}:undefined,image:imgUrl?{url:imgUrl}:undefined}]};
-  $('em-json').textContent=JSON.stringify(json,null,2);
-}
-updateEmbed();
-
-// ── DC TIMESTAMP ─────────────────────────────────────────────────────
-// Set default date to today
-$('ts-date').value=new Date().toISOString().split('T')[0];
-function genTimestamp(){
-  const d=$('ts-date').value,t=$('ts-time').value;
-  if(!d){toast('Datum wählen','err');return}
-  const ts=Math.floor(new Date(d+'T'+t).getTime()/1000);
-  const fmt=$('ts-fmt').value;
-  const out=`<t:${ts}:${fmt}>`;
-  $('ts-out').textContent=out;$('ts-pills').innerHTML=`<span class="pill pill-bl">Unix: ${ts}</span><span class="pill pill-cy">Format: :${fmt}</span>`;
-  $('ts-res').style.display='block';
-  genAllTS(ts);
-}
-function genAllTS(ts){
-  if(!ts){const d=$('ts-date').value,t=$('ts-time').value;if(!d)return;ts=Math.floor(new Date(d+'T'+t).getTime()/1000)}
-  const fmts=[['t','Kurze Zeit'],['T','Lange Zeit'],['d','Kurzes Datum'],['D','Langes Datum'],['f','Datum & Zeit'],['F','Vollständig'],['R','Relativ']];
-  $('ts-all').innerHTML=fmts.map(([f,n])=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:8px;padding:9px 12px">
-      <span style="font-size:12px;color:var(--muted);font-family:var(--mono);width:120px">${n}</span>
-      <span style="font-family:var(--mono);font-size:12px;color:#7b8ef8;flex:1"><t:${ts}:${f}></span>
-      <button onclick="copy('<t:${ts}:${f}>')" style="background:rgba(88,101,242,0.1);border:1px solid rgba(88,101,242,0.2);color:#7b8ef8;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font)">COPY</button>
-    </div>`).join('');
-}
-
-// ── DC FORMAT ────────────────────────────────────────────────────────
-function fmtDC(before,after){const ta=$('dc-txt');const s=ta.selectionStart,e=ta.selectionEnd;const sel=ta.value.substring(s,e)||'text';ta.value=ta.value.substring(0,s)+before+sel+after+ta.value.substring(e);ta.setSelectionRange(s+before.length,s+before.length+sel.length);updateDCPreview()}
-$('dc-txt').addEventListener('input',updateDCPreview);
-function updateDCPreview(){
-  let txt=$('dc-txt').value;
-  txt=txt.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/__(.+?)__/g,'<u>$1</u>').replace(/~~(.+?)~~/g,'<s>$1</s>').replace(/`(.+?)`/g,'<code style="background:rgba(0,0,0,0.3);border-radius:3px;padding:1px 4px;font-family:var(--mono)">$1</code>').replace(/\|\|(.+?)\|\|/g,'<span style="background:#000;border-radius:3px;padding:0 3px">$1</span>').replace(/^> (.+)/gm,'<blockquote style="border-left:3px solid #4e5058;padding-left:8px;color:rgba(255,255,255,0.6)">$1</blockquote>').replace(/\n/g,'<br>');
-  $('dc-preview').innerHTML=txt||'Tippe oben…';
-}
-
-// ── DC ANSI ───────────────────────────────────────────────────────────
-const ansiFG=[[30,'⚫ Black'],[31,'🔴 Red'],[32,'🟢 Green'],[33,'🟡 Yellow'],[34,'🔵 Blue'],[35,'🟣 Purple'],[36,'🩵 Cyan'],[37,'⬜ White']];
-const ansiBG=[[40,'⬛ Black'],[41,'🟥 Red'],[42,'🟩 Green'],[43,'🟨 Yellow'],[44,'🟦 Blue'],[45,'🟪 Purple'],[46,'🩵 Cyan'],[47,'⬜ White']];
-const ansiBGColors=['#000','#8b0000','#006400','#a0810a','#00008b','#4b0082','#008b8b','#aaa'];
-const ansiFGColors=['#333','#ff453a','#56c248','#ffd60a','#5555ff','#bf5af2','#06b6d4','#fff'];
-let selFG=37,selBG=-1,ansiBold=false,ansiUnder=false;
-function buildANSI(id,data,colors,selVar,setter){
-  const wrap=$(id);
-  data.forEach(([code,name],i)=>{
-    const btn=document.createElement('button');
-    btn.style.cssText=`background:${colors[i]};border:2px solid ${selVar===code?'#fff':'transparent'};border-radius:7px;padding:5px 10px;cursor:pointer;font-size:11px;color:${i===0||i===1||i===4?'#fff':'#000'};font-weight:600;font-family:var(--font);transition:all 0.12s`;
-    btn.textContent=name;
-    btn.id=`ab-${id}-${code}`;
-    btn.onclick=()=>{setter(code);buildANSIBtns()};
-    wrap.appendChild(btn);
-  });
-}
-function buildANSIBtns(){
-  $('ansi-fg').innerHTML='';$('ansi-bg').innerHTML='';
-  ansiFG.forEach(([code,name],i)=>{const btn=document.createElement('button');btn.style.cssText=`background:${ansiFGColors[i]};border:2px solid ${selFG===code?'#fff':'transparent'};border-radius:7px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font);color:${i<2?'#fff':'#000'};transition:border 0.1s`;btn.textContent=name;btn.onclick=()=>{selFG=code;buildANSIBtns()};$('ansi-fg').appendChild(btn)});
-  ansiBG.forEach(([code,name],i)=>{const btn=document.createElement('button');btn.style.cssText=`background:${ansiBGColors[i]};border:2px solid ${selBG===code?'#fff':'transparent'};border-radius:7px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font);color:#fff;transition:border 0.1s`;btn.textContent=name;btn.onclick=()=>{selBG=selBG===code?-1:code;buildANSIBtns()};$('ansi-bg').appendChild(btn)});
-}
-buildANSIBtns();
-function toggleAnsi(t){if(t==='bold'){ansiBold=!ansiBold;$('ansi-bold').style.background=ansiBold?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.06)'}else{ansiUnder=!ansiUnder;$('ansi-under').style.background=ansiUnder?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.06)'}}
-function genANSI(){
-  const txt=$('ansi-txt').value||'Hallo Discord!';
-  let codes=[];if(ansiBold)codes.push(1);if(ansiUnder)codes.push(4);codes.push(selFG);if(selBG>=0)codes.push(selBG);
-  const out='```ansi\n\u001b['+codes.join(';')+'m'+txt+'\u001b[0m\n```';
-  $('ansi-out').textContent=out;
-}
-
-// ── GIF ──────────────────────────────────────────────────────────────
+// ── GIF ──
 let gifFile=null;
-setupDZ('gif-dz','gif-in',f=>{if(!f.type.startsWith('video/')){toast('Kein Video!','err');return}gifFile=f;$('gif-fn').textContent=f.name;$('gif-vid').src=URL.createObjectURL(f);$('gif-prev').style.display='block';$('gif-btn').disabled=false;$('gif-res').style.display='none'});
+setupDZ('gif-dz','gif-in',f=>{
+  if(!f.type.startsWith('video/')){toast('Kein Video!','err');return}
+  gifFile=f;$('gif-fn').textContent=f.name;
+  $('gif-vid').src=URL.createObjectURL(f);$('gif-prev').style.display='block';
+  $('gif-btn').disabled=false;$('gif-res').style.display='none';
+});
 $('gif-btn').addEventListener('click',async()=>{
-  if(!gifFile)return;const w=+$('gif-w').value||480,fps=+$('gif-fps').value||12,q=+$('gif-q').value||8,s=+$('gif-s').value||0,ev=+$('gif-e').value||0;
+  if(!gifFile)return;
+  const w=+$('gif-w').value||480,fps=+$('gif-fps').value||12,q=+$('gif-q').value||8;
+  const s=+$('gif-s').value||0,ev=+$('gif-e').value||0;
   $('gif-btn').disabled=true;$('gif-res').style.display='none';$('gif-prog').style.display='block';
   const vid=document.createElement('video');vid.src=URL.createObjectURL(gifFile);vid.muted=true;
   await new Promise((r,j)=>{vid.onloadedmetadata=r;vid.onerror=j});
-  const dur=(ev>0?Math.min(ev,vid.duration):vid.duration)-s,frames=Math.floor(dur*fps),delay=Math.round(1000/fps),h=Math.round((vid.videoHeight/vid.videoWidth)*w);
+  const dur=(ev>0?Math.min(ev,vid.duration):vid.duration)-s;
+  const frames=Math.floor(dur*fps),delay=Math.round(1000/fps);
+  const h=Math.round((vid.videoHeight/vid.videoWidth)*w);
   const cv=document.createElement('canvas');cv.width=w;cv.height=h;const ctx=cv.getContext('2d');
   const gif=new GIF({workers:2,quality:q,width:w,height:h,workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'});
   gif.on('progress',p=>{$('gif-fill').style.width=Math.round(60+p*40)+'%';$('gif-lbl').textContent='Kodiere GIF…'});
-  gif.on('finished',blob=>{const burl=URL.createObjectURL(blob);$('gif-out').src=burl;$('gif-dl').onclick=()=>{const a=document.createElement('a');a.href=burl;a.download=gifFile.name.replace(/\.[^.]+$/,'')+'.gif';a.click()};$('gif-pills').innerHTML=`<span class="pill pill-def">${w}×${h}</span><span class="pill pill-bl">${fps}fps</span><span class="pill pill-gr">${fmtB(blob.size)}</span>`;$('gif-prog').style.display='none';$('gif-res').style.display='block';$('gif-btn').disabled=false;toast('GIF fertig! ⚡')});
-  for(let i=0;i<frames;i++){await new Promise(r=>{vid.currentTime=s+(i/fps);vid.onseeked=r});ctx.drawImage(vid,0,0,w,h);gif.addFrame(ctx,{copy:true,delay});$('gif-fill').style.width=Math.round((i/frames)*60)+'%';$('gif-lbl').textContent=`Frame ${i+1}/${frames}`}
+  gif.on('finished',blob=>{
+    const burl=URL.createObjectURL(blob);$('gif-out').src=burl;
+    $('gif-dl').onclick=()=>{const a=document.createElement('a');a.href=burl;a.download=gifFile.name.replace(/\.[^.]+$/,'')+'.gif';a.click()};
+    $('gif-pills').innerHTML=`<span class="pill">${w}×${h}</span><span class="pill pill-bl">${fps} fps</span><span class="pill pill-gr">${fmtB(blob.size)}</span>`;
+    $('gif-prog').style.display='none';$('gif-res').style.display='block';$('gif-btn').disabled=false;toast('GIF fertig! ⚡');
+  });
+  for(let i=0;i<frames;i++){
+    await new Promise(r=>{vid.currentTime=s+(i/fps);vid.onseeked=r});
+    ctx.drawImage(vid,0,0,w,h);gif.addFrame(ctx,{copy:true,delay});
+    $('gif-fill').style.width=Math.round((i/frames)*60)+'%';$('gif-lbl').textContent=`Frame ${i+1}/${frames}`;
+  }
   $('gif-lbl').textContent='Rendering…';gif.render();
 });
 $('gif-rst').onclick=()=>{gifFile=null;$('gif-in').value='';$('gif-fn').textContent='';$('gif-prev').style.display='none';$('gif-vid').src='';$('gif-res').style.display='none';$('gif-btn').disabled=true};
 
-// ── IMG ───────────────────────────────────────────────────────────────
+// ── IMG ──
 let imgFile=null;
 $('img-q').oninput=()=>$('img-qv').textContent=$('img-q').value;
-setupDZ('img-dz','img-in',f=>{if(!f.type.startsWith('image/')){toast('Kein Bild!','err');return}imgFile=f;$('img-btn').disabled=false;$('img-orig').src=URL.createObjectURL(f);$('img-res').style.display='none'});
+setupDZ('img-dz','img-in',f=>{
+  if(!f.type.startsWith('image/')){toast('Kein Bild!','err');return}
+  imgFile=f;$('img-btn').disabled=false;$('img-orig').src=URL.createObjectURL(f);$('img-res').style.display='none';
+});
 $('img-btn').onclick=()=>{
-  if(!imgFile)return;const q=+$('img-q').value/100,mw=+$('img-mw').value||0;
-  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(mw&&w>mw){h=Math.round((mw/w)*h);w=mw}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cv.toBlob(blob=>{const burl=URL.createObjectURL(blob);$('img-comp').src=burl;const s=Math.round((1-blob.size/imgFile.size)*100);$('img-pills').innerHTML=`<span class="pill pill-def">${w}×${h}</span><span class="pill pill-bl">Orig: ${fmtB(imgFile.size)}</span><span class="pill pill-gr">−${s}%</span><span class="pill pill-yl">${fmtB(blob.size)}</span>`;$('img-dl').onclick=()=>{const a=document.createElement('a');a.href=burl;a.download='compressed_'+imgFile.name;a.click()};$('img-res').style.display='block';toast(`−${s}% gespart! ⚡`)},imgFile.type==='image/png'?'image/png':'image/jpeg',q)};img.src=e.target.result};r.readAsDataURL(imgFile)};
+  if(!imgFile)return;
+  const q=+$('img-q').value/100,mw=+$('img-mw').value||0;
+  const r=new FileReader();r.onload=e=>{
+    const img=new Image();img.onload=()=>{
+      let w=img.width,h=img.height;if(mw&&w>mw){h=Math.round((mw/w)*h);w=mw}
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);
+      cv.toBlob(blob=>{
+        const burl=URL.createObjectURL(blob);$('img-comp').src=burl;
+        const s=Math.round((1-blob.size/imgFile.size)*100);
+        $('img-pills').innerHTML=`<span class="pill">${w}×${h}</span><span class="pill pill-bl">Original: ${fmtB(imgFile.size)}</span><span class="pill pill-gr">−${s}%</span><span class="pill pill-yl">${fmtB(blob.size)}</span>`;
+        $('img-dl').onclick=()=>{const a=document.createElement('a');a.href=burl;a.download='compressed_'+imgFile.name;a.click()};
+        $('img-res').style.display='block';toast(`−${s}% gespart! ⚡`);
+      },imgFile.type==='image/png'?'image/png':'image/jpeg',q);
+    };img.src=e.target.result;
+  };r.readAsDataURL(imgFile);
+};
 
-// ── QR ────────────────────────────────────────────────────────────────
+// ── QR ──
 $('qr-btn').onclick=()=>{
   const txt=$('qr-txt').value.trim();if(!txt){toast('Text fehlt','err');return}
   $('qr-wrap').innerHTML='';
   new QRCode($('qr-wrap'),{text:txt,width:+$('qr-sz').value||256,height:+$('qr-sz').value||256,colorDark:$('qr-fg').value,colorLight:$('qr-bg').value,correctLevel:QRCode.CorrectLevel[$('qr-ec').value]});
   $('qr-out').style.display='block';
-  setTimeout(()=>{const cv=$('qr-wrap').querySelector('canvas');if(!cv)return;$('qr-dl').onclick=()=>{const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='qrcode.png';a.click()};$('qr-cp').onclick=()=>cv.toBlob(b=>{try{navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(()=>toast('Kopiert!')).catch(()=>toast('Nicht möglich','err'))}catch{toast('Nicht möglich','err')}});toast('QR erstellt!')},200)};
+  setTimeout(()=>{
+    const cv=$('qr-wrap').querySelector('canvas');if(!cv)return;
+    $('qr-dl').onclick=()=>{const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='qrcode.png';a.click()};
+    $('qr-cp').onclick=()=>cv.toBlob(b=>{try{navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(()=>toast('Kopiert!')).catch(()=>toast('Nicht möglich','err'))}catch{toast('Nicht möglich','err')}});
+    toast('QR erstellt!');
+  },200);
+};
 
-// ── BASE64 ───────────────────────────────────────────────────────────
-function b64op(enc){const v=$('b64-in').value;if(!v){toast('Leer','err');return}try{const out=enc?btoa(unescape(encodeURIComponent(v))):decodeURIComponent(escape(atob(v)));$('b64-out').textContent=out;$('b64-lbl').textContent=enc?'Base64 encoded':'Decoded text';$('b64-res').style.display='block';$('b64-cp').onclick=()=>copy(out);$('b64-sw').onclick=()=>{$('b64-in').value=out;$('b64-res').style.display='none'}}catch{toast('Ungültige Base64!','err')}}
-
-// ── JSON ──────────────────────────────────────────────────────────────
-function doJSON(min){const v=$('json-in').value.trim();$('json-err').style.display='none';if(!v){toast('Leer','err');return}try{const p=JSON.parse(v);const out=min?JSON.stringify(p):JSON.stringify(p,null,2);$('json-out').textContent=out;$('json-pills').innerHTML=`<span class="pill pill-gr">Gültig ✓</span><span class="pill pill-def">${Array.isArray(p)?'Array':'Object'}</span><span class="pill pill-bl">${out.length}Z</span>`;$('json-res').style.display='block';$('json-cp').onclick=()=>copy(out);toast(min?'Minimiert!':'Formatiert!')}catch(e){$('json-err').textContent='⚠ '+e.message;$('json-err').style.display='block';$('json-res').style.display='none'}}
-
-// ── WORD COUNT ───────────────────────────────────────────────────────
-const stopDE=new Set(['und','der','die','das','ist','ein','eine','in','zu','den','von','mit','auf','für','nicht','als','an','bei','nach','über','sich','aber','oder','wenn','dann','auch','noch','wie','wird','sind','ich','wir','sie','ihr','ihm','des','dem','war','hat','haben','vom','zur','zum','durch','so','da','es','er','am','im','bis','aus']);
-$('wc-in').addEventListener('input',()=>{const t=$('wc-in').value;const c=t.length,w=t.trim()===''?0:t.trim().split(/\s+/).length,s=t.split(/[.!?]+/).filter(s=>s.trim()).length,p=t.split(/\n\s*\n/).filter(p=>p.trim()).length||1,rm=Math.ceil(w/200),rt=rm<1?'<1m':rm+'min';const ws=t.toLowerCase().match(/\b\w{3,}\b/g)||[];const freq={};ws.forEach(w=>{freq[w]=(freq[w]||0)+1});const top=Object.entries(freq).filter(([w])=>!stopDE.has(w)).sort((a,b)=>b[1]-a[1]).slice(0,10);$('wc-c').textContent=c.toLocaleString();$('wc-w').textContent=w.toLocaleString();$('wc-s').textContent=s.toLocaleString();$('wc-p').textContent=p.toLocaleString();$('wc-r').textContent=rt;$('wc-u').textContent=new Set(ws).size.toLocaleString();const tw=$('wc-top');if(top.length){tw.style.display='block';$('wc-tw').innerHTML=top.map(([w,c])=>`<span class="pill pill-def">${w} ×${c}</span>`).join('')}else tw.style.display='none'});
-
-// ── REGEX ─────────────────────────────────────────────────────────────
-function testRegex(){
-  const pat=$('rx-pat').value,flags=$('rx-flags').value,str=$('rx-str').value;
-  if(!pat||!str){toast('Pattern & Text nötig','err');return}
-  try{
-    const rx=new RegExp(pat,flags);const matches=[...str.matchAll(new RegExp(pat,'g'+flags.replace('g','')))];
-    $('rx-pills').innerHTML=`<span class="pill pill-gr">${matches.length} Treffer</span><span class="pill pill-def">Flags: /${flags}/</span>`;
-    $('rx-out').textContent=matches.length?matches.map((m,i)=>`[${i+1}] "${m[0]}" @ pos ${m.index}${m.length>1?'\n    Gruppen: '+m.slice(1).map((g,j)=>`(${j+1})="${g}"`).join(', '):''}`).join('\n'):'Keine Treffer';
-    $('rx-res').style.display='block';
-  }catch(e){toast('Ungültiger Regex: '+e.message,'err')}
+// ── BASE64 ──
+function b64op(enc){
+  const v=$('b64-in').value;if(!v){toast('Leer','err');return}
+  try{const out=enc?btoa(unescape(encodeURIComponent(v))):decodeURIComponent(escape(atob(v)));$('b64-out').textContent=out;$('b64-lbl').textContent=enc?'Base64 encoded':'Decoded text';$('b64-res').style.display='block';$('b64-cp').onclick=()=>copy(out);$('b64-sw').onclick=()=>{$('b64-in').value=out;$('b64-res').style.display='none'}}catch{toast('Ungültige Base64!','err')}
 }
+$('b64-enc').onclick=()=>b64op(true);$('b64-dec').onclick=()=>b64op(false);$('b64-clr').onclick=()=>{$('b64-in').value='';$('b64-res').style.display='none'};
 
-// ── COLOR ─────────────────────────────────────────────────────────────
-const swCs=['#ffffff','#bf5af2','#5865f2','#ff453a','#56c248','#ffd60a','#ff9f0a','#06b6d4','#ff375f','#64d2ff'];
+// ── JSON ──
+function doJSON(min){
+  const v=$('json-in').value.trim();$('json-err').style.display='none';if(!v){toast('Leer','err');return}
+  try{const p=JSON.parse(v);const out=min?JSON.stringify(p):JSON.stringify(p,null,2);$('json-out').textContent=out;$('json-pills').innerHTML=`<span class="pill pill-gr">Gültig ✓</span><span class="pill">${Array.isArray(p)?'Array':'Object'}</span><span class="pill pill-bl">${out.length} Zeichen</span>`;$('json-res').style.display='block';$('json-cp').onclick=()=>copy(out);toast(min?'Minimiert!':'Formatiert!')}catch(e){$('json-err').textContent='⚠ '+e.message;$('json-err').style.display='block';$('json-res').style.display='none'}
+}
+$('json-fmt').onclick=()=>doJSON(false);$('json-min').onclick=()=>doJSON(true);$('json-clr').onclick=()=>{$('json-in').value='';$('json-res').style.display='none';$('json-err').style.display='none'};
+
+// ── WORD COUNT ──
+const stopDE=new Set(['und','der','die','das','ist','ein','eine','in','zu','den','von','mit','auf','für','nicht','als','an','bei','nach','über','sich','aber','oder','wenn','dann','auch','noch','wie','wird','sind','ich','wir','sie','ihr','ihm','des','dem','war','hat','haben','vom','zur','zum','durch','so','da','es','er','am','im','bis','aus']);
+$('wc-in').addEventListener('input',()=>{
+  const t=$('wc-in').value;
+  const chars=t.length,words=t.trim()===''?0:t.trim().split(/\s+/).length;
+  const sentences=t.split(/[.!?]+/).filter(s=>s.trim()).length;
+  const paras=t.split(/\n\s*\n/).filter(p=>p.trim()).length||1;
+  const rm=Math.ceil(words/200);const rt=rm<1?'<1m':rm+'min';
+  const ws=t.toLowerCase().match(/\b\w{3,}\b/g)||[];
+  const freq={};ws.forEach(w=>{freq[w]=(freq[w]||0)+1});
+  const top=Object.entries(freq).filter(([w])=>!stopDE.has(w)).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  $('wc-c').textContent=chars.toLocaleString();$('wc-w').textContent=words.toLocaleString();
+  $('wc-s').textContent=sentences.toLocaleString();$('wc-p').textContent=paras.toLocaleString();
+  $('wc-r').textContent=rt;$('wc-u').textContent=new Set(ws).size.toLocaleString();
+  const tw=$('wc-top');
+  if(top.length){tw.style.display='block';$('wc-top-w').innerHTML=top.map(([w,c])=>`<span class="pill">${w} ×${c}</span>`).join('')}else{tw.style.display='none'}
+});
+
+// ── COLOR ──
+const swCs=['#ffffff','#bf5af2','#0a84ff','#ff453a','#30d158','#ffd60a','#ff9f0a','#32ade6','#ff375f','#64d2ff'];
 swCs.forEach(c=>{const s=document.createElement('div');s.className='swatch';s.style.background=c;s.onclick=()=>{$('c-hex').value=c;upHex()};$('cswatches').appendChild(s)});
 function hexToRgb(h){return{r:parseInt(h.slice(1,3),16),g:parseInt(h.slice(3,5),16),b:parseInt(h.slice(5,7),16)}}
-function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h,s,l=(mx+mn)/2;if(mx===mn){h=s=0}else{const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break}h/=6}return{h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)}}
+function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b);let h,s,l=(max+min)/2;if(max===min){h=s=0}else{const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break}h/=6}return{h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)}}
 function hslToRgb(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return{r:Math.round(f(0)*255),g:Math.round(f(8)*255),b:Math.round(f(4)*255)}}
 function c2h(c){return c.toString(16).padStart(2,'0')}
 function rgbToHex(r,g,b){return'#'+c2h(r)+c2h(g)+c2h(b)}
-function setColor(hex,rgb,hsl){$('c-hex').value=hex;$('c-rgb').value=`${rgb.r}, ${rgb.g}, ${rgb.b}`;$('c-hsl').value=`${hsl.h}, ${hsl.s}%, ${hsl.l}%`;$('cprev').style.background=hex;const css=`--color: ${hex};\n--color-rgb: ${rgb.r}, ${rgb.g}, ${rgb.b};\n--color-hsl: ${hsl.h}deg ${hsl.s}% ${hsl.l}%;\n\nbackground: var(--color);\ncolor: rgb(var(--color-rgb));`;$('ccss').textContent=css;$('ccp').onclick=()=>copy(css)}
+function setColor(hex,rgb,hsl){
+  $('c-hex').value=hex;$('c-rgb').value=`${rgb.r}, ${rgb.g}, ${rgb.b}`;$('c-hsl').value=`${hsl.h}, ${hsl.s}%, ${hsl.l}%`;
+  $('cprev').style.background=hex;
+  const css=`--color: ${hex};\n--color-rgb: ${rgb.r}, ${rgb.g}, ${rgb.b};\n--color-hsl: ${hsl.h}deg ${hsl.s}% ${hsl.l}%;\n\nbackground: var(--color);\ncolor: rgb(var(--color-rgb));`;
+  $('ccss').textContent=css;$('ccp').onclick=()=>copy(css);
+}
 function upHex(){const h=$('c-hex').value;if(!/^#[0-9a-fA-F]{6}$/.test(h))return;const rgb=hexToRgb(h);setColor(h,rgb,rgbToHsl(rgb.r,rgb.g,rgb.b))}
 function upRgb(){const p=$('c-rgb').value.split(',').map(s=>parseInt(s.trim()));if(p.length<3||p.some(isNaN))return;const[r,g,b]=p;setColor(rgbToHex(r,g,b),{r,g,b},rgbToHsl(r,g,b))}
 function upHsl(){const raw=$('c-hsl').value.replace(/%/g,'');const p=raw.split(',').map(s=>parseFloat(s.trim()));if(p.length<3||p.some(isNaN))return;const[h,s,l]=p;const rgb=hslToRgb(h,s,l);setColor(rgbToHex(rgb.r,rgb.g,rgb.b),rgb,{h,s,l})}
 $('c-hex').oninput=upHex;$('c-rgb').oninput=upRgb;$('c-hsl').oninput=upHsl;
-setColor('#bf5af2',hexToRgb('#bf5af2'),rgbToHsl(191,90,242));
+setColor('#bf5af2',hexToRgb('#bf5af2'),rgbToHsl(...Object.values(hexToRgb('#bf5af2'))));
 
-// ── PASSWORD ──────────────────────────────────────────────────────────
+// ── PASSWORD ──
 $('p-len').oninput=()=>$('pl-val').textContent=$('p-len').value;
 $('p-gen').onclick=()=>{
   const len=+$('p-len').value,na=$('p-na').checked;let chars='';
@@ -1401,46 +909,11 @@ $('p-gen').onclick=()=>{
   for(let i=0;i<(+$('p-cnt').value||5);i++){
     let pw='';const arr=new Uint8Array(len);crypto.getRandomValues(arr);arr.forEach(b=>pw+=chars[b%chars.length]);
     const d=document.createElement('div');d.className='pw-entry';
-    d.innerHTML=`<span style="word-break:break-all;position:relative;z-index:1;flex:1">${pw}</span><button class="pw-copy-btn">COPY</button>`;
+    d.innerHTML=`<span style="word-break:break-all;position:relative;z-index:1">${pw}</span><button class="pw-copy-btn">COPY</button>`;
     d.querySelector('.pw-copy-btn').onclick=()=>copy(pw);$('p-list').appendChild(d);
   }
-  $('p-res').style.display='block';toast('Passwörter generiert! 🔐');
+  $('p-res').style.display='block';toast('Generiert! 🔐');
 };
-
-// ── HASH ──────────────────────────────────────────────────────────────
-async function genHash(){
-  const txt=$('hash-in').value;if(!txt){toast('Text eingeben','err');return}
-  const enc=new TextEncoder().encode(txt);
-  const algs=['SHA-1','SHA-256','SHA-384','SHA-512'];
-  $('hash-out').innerHTML='';
-  for(const alg of algs){
-    const buf=await crypto.subtle.digest(alg,enc);
-    const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const div=document.createElement('div');div.style.cssText='margin-bottom:10px';
-    div.innerHTML=`<div style="font-size:10px;font-family:var(--mono);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">${alg}</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="out-box" style="flex:1;margin:0;min-height:auto;padding:10px 12px;font-size:11px;word-break:break-all">${hex}</div>
-        <button onclick="copy('${hex}')" class="pw-copy-btn" style="flex-shrink:0">COPY</button>
-      </div>`;
-    $('hash-out').appendChild(div);
-  }
-  $('hash-res').style.display='block';toast('Gehasht!');
-}
-
-// ── UUID ──────────────────────────────────────────────────────────────
-function genUUID(){
-  const cnt=+$('uuid-cnt').value||5,ver=$('uuid-ver').value;
-  $('uuid-list').innerHTML='';
-  for(let i=0;i<cnt;i++){
-    let uuid;
-    if(ver==='nil'){uuid='00000000-0000-0000-0000-000000000000'}
-    else{const b=crypto.getRandomValues(new Uint8Array(16));b[6]=(b[6]&0x0f)|0x40;b[8]=(b[8]&0x3f)|0x80;uuid=[...b].map((b,i)=>[4,6,8,10].includes(i)?'-'+b.toString(16).padStart(2,'0'):b.toString(16).padStart(2,'0')).join('')}
-    const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:8px';
-    d.innerHTML=`<div class="out-box" style="flex:1;margin:0;min-height:auto;padding:10px 12px;font-size:12px">${uuid}</div><button onclick="copy('${uuid}')" class="pw-copy-btn">COPY</button>`;
-    $('uuid-list').appendChild(d);
-  }
-  $('uuid-res').style.display='block';toast('UUIDs generiert!');
-}
 </script>
 </body>
 </html>
