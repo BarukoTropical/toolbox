@@ -11,7 +11,7 @@ const sheenCards = [...document.querySelectorAll('.sheen-card')];
 let activeMode = 'community';
 let busy = false;
 let conversation = [];
-let requestCount = Number.parseInt(localStorage.getItem('barukoRequestCount') || '0', 10);
+let requestCount = 0;
 countElement.textContent = requestCount.toString().padStart(2, '0');
 
 const escapeHtml = (value) => value.replace(/[&<>'"]/g, (character) => ({
@@ -89,12 +89,15 @@ async function sendMessage(rawMessage) {
   resizeInput();
   setBusy(true);
   const typing = createTyping();
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 45_000);
 
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: conversation, mode: activeMode }),
+      signal: controller.signal,
     });
 
     if (!response.ok || !response.body) {
@@ -119,12 +122,15 @@ async function sendMessage(rawMessage) {
     if (!answer.trim()) throw new Error('Die AI hat keine Antwort gesendet.');
     conversation.push({ role: 'assistant', content: answer });
     requestCount += 1;
-    localStorage.setItem('barukoRequestCount', String(requestCount));
     countElement.textContent = requestCount.toString().padStart(2, '0');
   } catch (error) {
     typing.remove();
-    setError(error instanceof Error ? error.message : 'Etwas ist schiefgelaufen. Bitte versuche es erneut.');
+    const message = error instanceof DOMException && error.name === 'AbortError'
+      ? 'Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.'
+      : error instanceof Error ? error.message : 'Etwas ist schiefgelaufen. Bitte versuche es erneut.';
+    setError(message);
   } finally {
+    window.clearTimeout(timeout);
     setBusy(false);
     input.focus();
   }
@@ -160,6 +166,8 @@ modeButtons.forEach((button) => {
 
 clearButton.addEventListener('click', () => {
   conversation = [];
+  requestCount = 0;
+  countElement.textContent = '00';
   messagesElement.querySelectorAll('.message:not(.welcome-message)').forEach((message) => message.remove());
   if (!document.querySelector('#suggestions')) {
     messagesElement.insertAdjacentHTML('beforeend', `

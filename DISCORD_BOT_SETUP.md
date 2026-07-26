@@ -1,6 +1,14 @@
 # BARUKO AI Discord Bot
 
-Der Bot stellt den Slash Command `/baruko` bereit und beantwortet Fragen über dieselbe BARUKO-AI-Konfiguration wie die Website. Er nutzt Discord HTTP Interactions und benötigt deshalb keinen dauerhaft laufenden Gateway-Server.
+Der Bot stellt den Slash Command `/baruko` bereit und beantwortet Fragen über dieselbe BARUKO-AI-Konfiguration wie die Website. Er nutzt Discord HTTP Interactions und läuft deshalb vollständig über Netlify Functions, ohne dauerhaft laufenden Gateway-Server.
+
+## Was bereits gehostet wird
+
+- `/api/discord/interactions` empfängt und verifiziert Discord-Interaktionen.
+- `/api/discord/install` öffnet den Discord-Installationsdialog.
+- `/api/chat` versorgt den Chat auf der Website über Netlify AI Gateway.
+
+Nach einem Netlify-Deploy ist der Code online. Für die Verbindung zu deinem eigenen Discord-Bot fehlen nur noch die Werte aus deiner Discord Application. Diese Zugangsdaten können nicht sicher vorab in den Quellcode eingetragen werden.
 
 ## Discord-Anwendung vorbereiten
 
@@ -37,6 +45,8 @@ Setze `DISCORD_BOT_TOKEN` nur in der Shell, in der du den Registrierungsbefehl a
 npm run discord:register
 ```
 
+Für die erste Einrichtung werden in derselben Shell mindestens `DISCORD_APPLICATION_ID` und `DISCORD_BOT_TOKEN` benötigt. Optional begrenzt `DISCORD_GUILD_ID` die Registrierung auf einen Test-Server. Gib diese Werte nicht in Chatnachrichten weiter und committe sie nicht.
+
 Der Command unterstützt:
 
 - `prompt`: Frage oder Aufgabe für BARUKO AI
@@ -46,3 +56,10 @@ Der Command unterstützt:
 ## Bot installieren
 
 Nach gesetzter `DISCORD_APPLICATION_ID` führt der Button **Bot installieren** auf der Website über `/api/discord/install` zum Discord-Installationsdialog. Der Bot verlangt keine administrativen Server-Rechte.
+
+## Funktion testen
+
+1. Öffne den Installationsbutton auf der veröffentlichten Website und füge den Bot deinem Server hinzu.
+2. Tippe in einem Channel `/baruko` und fülle das Feld `prompt` aus.
+3. Lasse `privat` aktiviert, wenn nur du die Antwort sehen sollst.
+4. Prüfe bei Fehlern zuerst, ob der Interaction Endpoint von Discord bestätigt wurde und die beiden Netlify-Variablen exakt stimmen.

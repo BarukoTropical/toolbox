@@ -60,6 +60,9 @@ async function verifyDiscordRequest(request: Request, rawBody: string) {
 
   if (!signature || !timestamp || !publicKey) return false
 
+  const requestTime = Number(timestamp) * 1000
+  if (!Number.isFinite(requestTime) || Math.abs(Date.now() - requestTime) > 5 * 60 * 1000) return false
+
   const signatureBytes = hexToBytes(signature)
   const publicKeyBytes = hexToBytes(publicKey)
   if (!signatureBytes || !publicKeyBytes) return false
@@ -118,6 +121,7 @@ async function answerCommand(interaction: DiscordInteraction) {
         { role: 'user', content: prompt.slice(0, 1500) },
       ],
       max_completion_tokens: 850,
+      store: false,
     })
 
     const answer = completion.choices[0]?.message.content
@@ -143,6 +147,11 @@ export default async (request: Request, context: Context) => {
     interaction = JSON.parse(rawBody) as DiscordInteraction
   } catch {
     return new Response('Invalid JSON', { status: 400 })
+  }
+
+  const applicationId = process.env.DISCORD_APPLICATION_ID
+  if (applicationId && interaction.application_id !== applicationId) {
+    return new Response('Invalid application', { status: 401 })
   }
 
   if (interaction.type === interactionType.ping) {
