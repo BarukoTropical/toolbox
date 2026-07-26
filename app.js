@@ -6,6 +6,7 @@ const errorBanner = document.querySelector('#errorBanner');
 const countElement = document.querySelector('#messageCount');
 const clearButton = document.querySelector('#clearChat');
 const modeButtons = [...document.querySelectorAll('.mode')];
+const sheenCards = [...document.querySelectorAll('.sheen-card')];
 
 let activeMode = 'community';
 let busy = false;
@@ -67,6 +68,12 @@ function setBusy(value) {
 function resizeInput() {
   input.style.height = 'auto';
   input.style.height = `${Math.min(input.scrollHeight, 130)}px`;
+}
+
+function bindSuggestionButtons() {
+  document.querySelectorAll('[data-prompt]').forEach((button) => {
+    button.addEventListener('click', () => sendMessage(button.dataset.prompt || ''));
+  });
 }
 
 async function sendMessage(rawMessage) {
@@ -136,9 +143,7 @@ input.addEventListener('keydown', (event) => {
   }
 });
 
-document.querySelectorAll('[data-prompt]').forEach((button) => {
-  button.addEventListener('click', () => sendMessage(button.dataset.prompt || ''));
-});
+bindSuggestionButtons();
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => {
@@ -159,16 +164,31 @@ clearButton.addEventListener('click', () => {
   if (!document.querySelector('#suggestions')) {
     messagesElement.insertAdjacentHTML('beforeend', `
       <div class="suggestions" id="suggestions">
-        <button data-prompt="Schreibe eine coole Willkommensnachricht für neue Mitglieder auf meinem Gaming-Discord."><span>✦</span> Willkommensnachricht</button>
-        <button data-prompt="Plane ein kreatives Community-Event für meinen Discord-Server."><span>⌁</span> Event planen</button>
-        <button data-prompt="Formuliere faire und klare Regeln für einen deutschen Gaming-Discord."><span>◈</span> Server-Regeln</button>
+        <button data-prompt="Schreibe eine coole Willkommensnachricht für neue Mitglieder auf meinem Gaming-Discord.">
+          <span class="suggestion-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span><b>Welcome Flow</b><small>Neue Mitglieder richtig begrüßen</small></span><i>01</i>
+        </button>
+        <button data-prompt="Plane ein kreatives Community-Event für meinen Discord-Server.">
+          <span class="suggestion-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M5 3v3m10-3v3M3.5 8h13M5 5h10a2 2 0 0 1 2 2v9H3V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><b>Event Blueprint</b><small>Community-Aktion konzipieren</small></span><i>02</i>
+        </button>
+        <button data-prompt="Formuliere faire und klare Regeln für einen deutschen Gaming-Discord.">
+          <span class="suggestion-icon"><svg viewBox="0 0 20 20" fill="none"><path d="m10 2.8 6 2.3v4.5c0 3.7-2.5 6.2-6 7.6-3.5-1.4-6-3.9-6-7.6V5.1l6-2.3Z" stroke="currentColor" stroke-width="1.5"/><path d="m7.3 10 1.7 1.7 3.8-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><b>Rule System</b><small>Faire Server-Regeln formulieren</small></span><i>03</i>
+        </button>
       </div>`);
-    document.querySelectorAll('[data-prompt]').forEach((button) => {
-      button.addEventListener('click', () => sendMessage(button.dataset.prompt || ''));
-    });
+    bindSuggestionButtons();
   }
   setError();
   scrollToBottom();
+});
+
+sheenCards.forEach((card) => {
+  card.addEventListener('pointermove', (event) => {
+    const bounds = card.getBoundingClientRect();
+    card.style.setProperty('--pointer-x', `${event.clientX - bounds.left}px`);
+    card.style.setProperty('--pointer-y', `${event.clientY - bounds.top}px`);
+  });
 });
 
 input.focus();
