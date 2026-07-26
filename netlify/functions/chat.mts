@@ -1,8 +1,6 @@
 import OpenAI from 'openai'
 import type { Config } from '@netlify/functions'
 
-const openai = new OpenAI()
-
 type ChatMessage = {
   role: 'user' | 'assistant'
   content: string
@@ -43,6 +41,7 @@ export default async (request: Request) => {
     }
 
     const mode = typeof body.mode === 'string' ? body.mode : 'community'
+    const openai = new OpenAI({ timeout: 40_000 })
     const stream = await openai.chat.completions.create({
       model: 'gpt-5.4-mini',
       messages: [
@@ -50,6 +49,7 @@ export default async (request: Request) => {
         ...validMessages,
       ],
       max_completion_tokens: 900,
+      store: false,
       stream: true,
     })
 
